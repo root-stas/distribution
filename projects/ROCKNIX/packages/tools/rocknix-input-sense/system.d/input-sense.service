@@ -1,14 +1,14 @@
 [Unit]
-Description=Volume button service
+Description=ROCKNIX input-sense service
 After=headphones.service
 Before=rocknix.target
 StartLimitIntervalSec=0
 
 [Service]
 Environment=HOME=/storage
-ExecStart=/usr/bin/input_sense
+ExecStart=/bin/bash -c "source /etc/profile && exec /usr/bin/input-sense"
 Restart=always
-RestartSec=1
+RestartSec=2
 
 [Install]
 WantedBy=multi-user.target
