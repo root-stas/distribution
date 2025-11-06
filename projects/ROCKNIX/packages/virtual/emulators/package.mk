@@ -30,8 +30,8 @@ case "${DEVICE}" in
   H700)
     [ "${ENABLE_32BIT}" == "true" ] && EMUS_32BIT="box86 desmume-lr gpsp-lr pcsx_rearmed-lr"
     PKG_DEPENDS_TARGET+=" common-shaders glsl-shaders"
-    PKG_EMUS+=" box64 drastic-sa mednafen portmaster scummvmsa yabasanshiro-sa duckstation-sa"
-    LIBRETRO_CORES+=" flycast2021-lr geolith-lr uae4arm"
+    PKG_EMUS+=" rpcs3-sa xemu-sa cemu-sa aethersx2-sa azahar-sa box64 dolphin-sa drastic-sa mednafen portmaster scummvmsa yabasanshiro-sa duckstation-sa"
+    LIBRETRO_CORES+=" ppsspp-lr beetle-psx-lr beetle-saturn-lr bsnes-lr bsnes-hd-lr dolphin-lr flycast2021-lr geolith-lr uae4arm"
     PKG_RETROARCH+=" retropie-shaders"
     ;;
   RK3326)
@@ -146,7 +146,7 @@ makeinstall_target() {
 
   ### Nintendo 3DS
   case ${DEVICE} in
-    SDM845|SM8250|SM8550|S922X)
+    SDM845|SM8250|SM8550|S922X|H700)
       add_emu_core 3ds azahar azahar-sa true
       add_es_system 3ds
       ;;
@@ -551,7 +551,7 @@ makeinstall_target() {
       install_script "Start Dolphin.sh"
       add_es_system gamecube
       ;;
-    RK3566|RK3588|S922X)
+    RK3566|RK3588|S922X|H700)
       add_emu_core gamecube dolphin dolphin-sa-gc true
       add_emu_core gamecube retroarch dolphin false
       add_es_system gamecube
@@ -566,7 +566,7 @@ makeinstall_target() {
       add_emu_core wii retroarch dolphin false
       add_es_system wii
       ;;
-    RK3566|RK3588|S922X)
+    RK3566|RK3588|S922X|H700)
       add_emu_core wii dolphin dolphin-sa-wii true
       add_emu_core wii retroarch dolphin false
       add_es_system wii
@@ -575,7 +575,7 @@ makeinstall_target() {
 
   ### Nintendo Wii U
   case ${DEVICE} in
-    SDM845|SM8250|SM8550)
+    SDM845|SM8250|SM8550|H700)
       add_emu_core wiiu cemu cemu-sa true
       add_es_system wiiu
       install_script "Start CEMU.sh"
@@ -883,6 +883,7 @@ makeinstall_target() {
     H700|RK3326)
       add_emu_core psx retroarch pcsx_rearmed32 true
       add_emu_core psx retroarch pcsx_rearmed false
+      add_emu_core psx retroarch beetle_psx false
       ;;
     RK3399|RK3588)
       add_emu_core psx retroarch pcsx_rearmed true
@@ -911,7 +912,7 @@ makeinstall_target() {
 
   ### Sony Playstation 2
   case ${DEVICE} in
-    RK3399|RK3588|SDM845|SM8250|SM8550|S922X)
+    RK3399|RK3588|SDM845|SM8250|SM8550|S922X|H700)
       add_emu_core ps2 aethersx2 aethersx2-sa true
       add_es_system ps2
       install_script "Start AetherSX2.sh"
@@ -920,7 +921,7 @@ makeinstall_target() {
 
   ### Sony Playstation 3
   case ${DEVICE} in
-    SDM845|SM8250|SM8550)
+    SDM845|SM8250|SM8550|H700)
       add_emu_core ps3 rpcs3 rpcs3-sa true
       add_es_system ps3
       install_script "Start RPCS3.sh"
@@ -929,8 +930,10 @@ makeinstall_target() {
 
   ### Sony Playstation Portable
   add_emu_core psp ppsspp ppsspp-sa true
+  add_emu_core psp retroarch ppsspp false
   add_es_system psp
   install_script "Start PPSSPP.sh"
+  install_script "Start PPSSPP VK.sh"
 
   ### Sony Playstation Portable Minis
   add_emu_core pspminis ppsspp ppsspp-sa true
@@ -1045,7 +1048,7 @@ makeinstall_target() {
       add_emu_core saturn retroarch kronos false
       add_emu_core saturn mednafen ss false
       ;;
-    S922X)
+    S922X|H700)
       add_emu_core saturn retroarch beetle_saturn false
       ;;
   esac
@@ -1071,7 +1074,7 @@ makeinstall_target() {
 
   ### Microsoft XBox
   case ${DEVICE} in
-    SDM845|SM8250|SM8550)
+    SDM845|SM8250|SM8550|H700)
       add_emu_core xbox xemu xemu-sa true
       add_es_system xbox
       install_script "Start Xemu.sh"
@@ -1107,7 +1110,7 @@ makeinstall_target() {
   add_emu_core snes retroarch bsnes_mercury_balanced false
   add_emu_core snes retroarch bsnes_mercury_performance false
   case ${DEVICE} in
-    RK3399|RK3588|SDM845|SM8250|SM8550|S922X)
+    RK3399|RK3588|SDM845|SM8250|SM8550|S922X|H700)
       add_emu_core snes retroarch bsnes false
       add_emu_core snes retroarch bsnes_hd_beta false
       ;;
