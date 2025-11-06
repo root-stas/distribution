@@ -29,7 +29,6 @@ case ${DEVICE} in
     PKG_URL="https://gitlab.com/tjstyle/linux/-/archive/sdm845/${PKG_VERSION}-release/linux-sdm845-${PKG_VERSION}-release.tar.gz"
     PKG_PATCH_DIRS="${LINUX} ${DEVICE} default"
   ;;
-  *)
   H700)
     PKG_VERSION="6.18-rc4"
     PKG_URL="https://git.kernel.org/torvalds/t/linux-${PKG_VERSION}.tar.gz"
