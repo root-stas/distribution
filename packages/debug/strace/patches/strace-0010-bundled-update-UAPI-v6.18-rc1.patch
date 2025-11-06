@@ -1,0 +1,1217 @@
+From 0f411762881d51136db5a697264202fb50e4f4ee Mon Sep 17 00:00:00 2001
+From: "Dmitry V. Levin" <ldv@strace.io>
+Date: Mon, 13 Oct 2025 08:00:00 +0000
+Subject: [PATCH] bundled: update linux UAPI headers to v6.18-rc1
+
+The update of linux/tee.h is delayed because of conflicts with src/tee.c.
+
+* bundled/include/uapi/linux/devlink.h: Update to headers_install'ed
+Linux kernel v6.18-rc1.
+* bundled/include/uapi/linux/ethtool.h: Likewise.
+* bundled/include/uapi/linux/ethtool_netlink_generated.h: Likewise.
+* bundled/include/uapi/linux/fcntl.h: Likewise.
+* bundled/include/uapi/linux/fs.h: Likewise.
+* bundled/include/uapi/linux/if_bridge.h: Likewise.
+* bundled/include/uapi/linux/if_link.h: Likewise.
+* bundled/include/uapi/linux/input-event-codes.h: Likewise.
+* bundled/include/uapi/linux/input.h: Likewise.
+* bundled/include/uapi/linux/io_uring.h: Likewise.
+* bundled/include/uapi/linux/kexec.h: Likewise.
+* bundled/include/uapi/linux/mptcp.h: Likewise.
+* bundled/include/uapi/linux/mptcp_pm.h: Likewise.
+* bundled/include/uapi/linux/netfilter/nf_tables.h: Likewise.
+* bundled/include/uapi/linux/nl80211.h: Likewise.
+* bundled/include/uapi/linux/nsfs.h: Likewise.
+* bundled/include/uapi/linux/prctl.h: Likewise.
+* bundled/include/uapi/linux/ptp_clock.h: Likewise.
+* bundled/include/uapi/linux/tcp.h: Likewise.
+* bundled/include/uapi/linux/v4l2-controls.h: Likewise.
+* bundled/include/uapi/linux/version.h: Likewise.
+* bundled/include/uapi/linux/videodev2.h: Likewise.
+---
+ bundled/linux/include/uapi/linux/devlink.h    |   2 +
+ bundled/linux/include/uapi/linux/ethtool.h    |   1 +
+ .../uapi/linux/ethtool_netlink_generated.h    |  12 +
+ bundled/linux/include/uapi/linux/fcntl.h      |   1 +
+ bundled/linux/include/uapi/linux/fs.h         |   5 +-
+ bundled/linux/include/uapi/linux/if_bridge.h  |   3 +
+ bundled/linux/include/uapi/linux/if_link.h    |   3 +
+ .../include/uapi/linux/input-event-codes.h    |   1 +
+ bundled/linux/include/uapi/linux/input.h      |  22 +-
+ bundled/linux/include/uapi/linux/io_uring.h   |  40 ++-
+ bundled/linux/include/uapi/linux/kexec.h      |   4 +
+ bundled/linux/include/uapi/linux/mptcp.h      |  24 +-
+ bundled/linux/include/uapi/linux/mptcp_pm.h   |   4 +-
+ .../include/uapi/linux/netfilter/nf_tables.h  |   4 +
+ bundled/linux/include/uapi/linux/nl80211.h    | 255 +++++++++++++++++-
+ bundled/linux/include/uapi/linux/nsfs.h       |  16 +-
+ bundled/linux/include/uapi/linux/prctl.h      |  10 +
+ bundled/linux/include/uapi/linux/ptp_clock.h  |   7 +
+ bundled/linux/include/uapi/linux/tcp.h        |   9 +
+ .../linux/include/uapi/linux/v4l2-controls.h  | 121 +++++----
+ bundled/linux/include/uapi/linux/version.h    |   4 +-
+ bundled/linux/include/uapi/linux/videodev2.h  |  20 +-
+ 22 files changed, 476 insertions(+), 92 deletions(-)
+
+diff --git a/bundled/linux/include/uapi/linux/devlink.h b/bundled/linux/include/uapi/linux/devlink.h
+index a89df2a7db..bcd5fde1c8 100644
+--- a/bundled/linux/include/uapi/linux/devlink.h
++++ b/bundled/linux/include/uapi/linux/devlink.h
+@@ -636,6 +636,8 @@ enum devlink_attr {
+ 
+ 	DEVLINK_ATTR_RATE_TC_BWS,		/* nested */
+ 
++	DEVLINK_ATTR_HEALTH_REPORTER_BURST_PERIOD,	/* u64 */
++
+ 	/* Add new attributes above here, update the spec in
+ 	 * Documentation/netlink/specs/devlink.yaml and re-generate
+ 	 * net/devlink/netlink_gen.c.
+diff --git a/bundled/linux/include/uapi/linux/ethtool.h b/bundled/linux/include/uapi/linux/ethtool.h
+index 4a4b77b0b3..d515565bbf 100644
+--- a/bundled/linux/include/uapi/linux/ethtool.h
++++ b/bundled/linux/include/uapi/linux/ethtool.h
+@@ -2378,6 +2378,7 @@ enum {
+ #define	RXH_L4_B_0_1	(1 << 6) /* src port in case of TCP/UDP/SCTP */
+ #define	RXH_L4_B_2_3	(1 << 7) /* dst port in case of TCP/UDP/SCTP */
+ #define	RXH_GTP_TEID	(1 << 8) /* teid in case of GTP */
++#define	RXH_IP6_FL	(1 << 9) /* IPv6 flow label */
+ #define	RXH_DISCARD	(1 << 31)
+ 
+ #define	RX_CLS_FLOW_DISC	0xffffffffffffffffULL
+diff --git a/bundled/linux/include/uapi/linux/ethtool_netlink_generated.h b/bundled/linux/include/uapi/linux/ethtool_netlink_generated.h
+index 98d12b033e..3d1fbfbce8 100644
+--- a/bundled/linux/include/uapi/linux/ethtool_netlink_generated.h
++++ b/bundled/linux/include/uapi/linux/ethtool_netlink_generated.h
+@@ -561,12 +561,24 @@ enum {
+ 	ETHTOOL_A_TUNNEL_INFO_MAX = (__ETHTOOL_A_TUNNEL_INFO_CNT - 1)
+ };
+ 
++enum {
++	ETHTOOL_A_FEC_HIST_PAD = 1,
++	ETHTOOL_A_FEC_HIST_BIN_LOW,
++	ETHTOOL_A_FEC_HIST_BIN_HIGH,
++	ETHTOOL_A_FEC_HIST_BIN_VAL,
++	ETHTOOL_A_FEC_HIST_BIN_VAL_PER_LANE,
++
++	__ETHTOOL_A_FEC_HIST_CNT,
++	ETHTOOL_A_FEC_HIST_MAX = (__ETHTOOL_A_FEC_HIST_CNT - 1)
++};
++
+ enum {
+ 	ETHTOOL_A_FEC_STAT_UNSPEC,
+ 	ETHTOOL_A_FEC_STAT_PAD,
+ 	ETHTOOL_A_FEC_STAT_CORRECTED,
+ 	ETHTOOL_A_FEC_STAT_UNCORR,
+ 	ETHTOOL_A_FEC_STAT_CORR_BITS,
++	ETHTOOL_A_FEC_STAT_HIST,
+ 
+ 	__ETHTOOL_A_FEC_STAT_CNT,
+ 	ETHTOOL_A_FEC_STAT_MAX = (__ETHTOOL_A_FEC_STAT_CNT - 1)
+diff --git a/bundled/linux/include/uapi/linux/fcntl.h b/bundled/linux/include/uapi/linux/fcntl.h
+index 59cbae12de..3b401f2068 100644
+--- a/bundled/linux/include/uapi/linux/fcntl.h
++++ b/bundled/linux/include/uapi/linux/fcntl.h
+@@ -111,6 +111,7 @@
+ #define PIDFD_SELF_THREAD_GROUP		-10001 /* Current thread group leader. */
+ 
+ #define FD_PIDFS_ROOT			-10002 /* Root of the pidfs filesystem */
++#define FD_NSFS_ROOT			-10003 /* Root of the nsfs filesystem */
+ #define FD_INVALID			-10009 /* Invalid file descriptor: -10000 - EBADF = -10009 */
+ 
+ /* Generic flags for the *at(2) family of syscalls. */
+diff --git a/bundled/linux/include/uapi/linux/fs.h b/bundled/linux/include/uapi/linux/fs.h
+index 23cbb01be9..3ed9c0de68 100644
+--- a/bundled/linux/include/uapi/linux/fs.h
++++ b/bundled/linux/include/uapi/linux/fs.h
+@@ -426,10 +426,13 @@ typedef int __bitwise __kernel_rwf_t;
+ /* buffered IO that drops the cache after reading or writing data */
+ #define RWF_DONTCACHE	((__kernel_rwf_t)0x00000080)
+ 
++/* prevent pipe and socket writes from raising SIGPIPE */
++#define RWF_NOSIGNAL	((__force __kernel_rwf_t)0x00000100)
++
+ /* mask of flags supported by the kernel */
+ #define RWF_SUPPORTED	(RWF_HIPRI | RWF_DSYNC | RWF_SYNC | RWF_NOWAIT |\
+ 			 RWF_APPEND | RWF_NOAPPEND | RWF_ATOMIC |\
+-			 RWF_DONTCACHE)
++			 RWF_DONTCACHE | RWF_NOSIGNAL)
+ 
+ #define PROCFS_IOCTL_MAGIC 'f'
+ 
+diff --git a/bundled/linux/include/uapi/linux/if_bridge.h b/bundled/linux/include/uapi/linux/if_bridge.h
+index bed5e0c112..4d7509c4b8 100644
+--- a/bundled/linux/include/uapi/linux/if_bridge.h
++++ b/bundled/linux/include/uapi/linux/if_bridge.h
+@@ -823,6 +823,8 @@ struct br_mcast_stats {
+ /* bridge boolean options
+  * BR_BOOLOPT_NO_LL_LEARN - disable learning from link-local packets
+  * BR_BOOLOPT_MCAST_VLAN_SNOOPING - control vlan multicast snooping
++ * BR_BOOLOPT_FDB_LOCAL_VLAN_0 - local FDB entries installed by the bridge
++ *                               driver itself should only be added on VLAN 0
+  *
+  * IMPORTANT: if adding a new option do not forget to handle
+  *            it in br_boolopt_toggle/get and bridge sysfs
+@@ -832,6 +834,7 @@ enum br_boolopt_id {
+ 	BR_BOOLOPT_MCAST_VLAN_SNOOPING,
+ 	BR_BOOLOPT_MST_ENABLE,
+ 	BR_BOOLOPT_MDB_OFFLOAD_FAIL_NOTIFICATION,
++	BR_BOOLOPT_FDB_LOCAL_VLAN_0,
+ 	BR_BOOLOPT_MAX
+ };
+ 
+diff --git a/bundled/linux/include/uapi/linux/if_link.h b/bundled/linux/include/uapi/linux/if_link.h
+index b450757c8d..d05f5cc750 100644
+--- a/bundled/linux/include/uapi/linux/if_link.h
++++ b/bundled/linux/include/uapi/linux/if_link.h
+@@ -379,6 +379,8 @@ enum {
+ 	IFLA_DPLL_PIN,
+ 	IFLA_MAX_PACING_OFFLOAD_HORIZON,
+ 	IFLA_NETNS_IMMUTABLE,
++	IFLA_HEADROOM,
++	IFLA_TAILROOM,
+ 	__IFLA_MAX
+ };
+ 
+@@ -1562,6 +1564,7 @@ enum {
+ 	IFLA_BOND_SLAVE_AD_ACTOR_OPER_PORT_STATE,
+ 	IFLA_BOND_SLAVE_AD_PARTNER_OPER_PORT_STATE,
+ 	IFLA_BOND_SLAVE_PRIO,
++	IFLA_BOND_SLAVE_ACTOR_PORT_PRIO,
+ 	__IFLA_BOND_SLAVE_MAX,
+ };
+ 
+diff --git a/bundled/linux/include/uapi/linux/input-event-codes.h b/bundled/linux/include/uapi/linux/input-event-codes.h
+index 90295adc64..7ff88c5bae 100644
+--- a/bundled/linux/include/uapi/linux/input-event-codes.h
++++ b/bundled/linux/include/uapi/linux/input-event-codes.h
+@@ -27,6 +27,7 @@
+ #define INPUT_PROP_TOPBUTTONPAD		0x04	/* softbuttons at top of pad */
+ #define INPUT_PROP_POINTING_STICK	0x05	/* is a pointing stick */
+ #define INPUT_PROP_ACCELEROMETER	0x06	/* has accelerometer */
++#define INPUT_PROP_HAPTIC_TOUCHPAD	0x07	/* is a haptic touchpad */
+ 
+ #define INPUT_PROP_MAX			0x1f
+ #define INPUT_PROP_CNT			(INPUT_PROP_MAX + 1)
+diff --git a/bundled/linux/include/uapi/linux/input.h b/bundled/linux/include/uapi/linux/input.h
+index 23b8047f7b..9f80d040c4 100644
+--- a/bundled/linux/include/uapi/linux/input.h
++++ b/bundled/linux/include/uapi/linux/input.h
+@@ -427,6 +427,24 @@ struct ff_rumble_effect {
+ 	__u16 weak_magnitude;
+ };
+ 
++/**
++ * struct ff_haptic_effect
++ * @hid_usage: hid_usage according to Haptics page (WAVEFORM_CLICK, etc.)
++ * @vendor_id: the waveform vendor ID if hid_usage is in the vendor-defined range
++ * @vendor_waveform_page: the vendor waveform page if hid_usage is in the vendor-defined range
++ * @intensity: strength of the effect as percentage
++ * @repeat_count: number of times to retrigger effect
++ * @retrigger_period: time before effect is retriggered (in ms)
++ */
++struct ff_haptic_effect {
++	__u16 hid_usage;
++	__u16 vendor_id;
++	__u8  vendor_waveform_page;
++	__u16 intensity;
++	__u16 repeat_count;
++	__u16 retrigger_period;
++};
++
+ /**
+  * struct ff_effect - defines force feedback effect
+  * @type: type of the effect (FF_CONSTANT, FF_PERIODIC, FF_RAMP, FF_SPRING,
+@@ -463,6 +481,7 @@ struct ff_effect {
+ 		struct ff_periodic_effect periodic;
+ 		struct ff_condition_effect condition[2]; /* One for each axis */
+ 		struct ff_rumble_effect rumble;
++		struct ff_haptic_effect haptic;
+ 	} u;
+ };
+ 
+@@ -470,6 +489,7 @@ struct ff_effect {
+  * Force feedback effect types
+  */
+ 
++#define FF_HAPTIC		0x4f
+ #define FF_RUMBLE	0x50
+ #define FF_PERIODIC	0x51
+ #define FF_CONSTANT	0x52
+@@ -479,7 +499,7 @@ struct ff_effect {
+ #define FF_INERTIA	0x56
+ #define FF_RAMP		0x57
+ 
+-#define FF_EFFECT_MIN	FF_RUMBLE
++#define FF_EFFECT_MIN	FF_HAPTIC
+ #define FF_EFFECT_MAX	FF_RAMP
+ 
+ /*
+diff --git a/bundled/linux/include/uapi/linux/io_uring.h b/bundled/linux/include/uapi/linux/io_uring.h
+index 6957dc539d..263bed1347 100644
+--- a/bundled/linux/include/uapi/linux/io_uring.h
++++ b/bundled/linux/include/uapi/linux/io_uring.h
+@@ -225,6 +225,12 @@ enum io_uring_sqe_flags_bit {
+ /* Use hybrid poll in iopoll process */
+ #define IORING_SETUP_HYBRID_IOPOLL	(1U << 17)
+ 
++/*
++ * Allow both 16b and 32b CQEs. If a 32b CQE is posted, it will have
++ * IORING_CQE_F_32 set in cqe->flags.
++ */
++#define IORING_SETUP_CQE_MIXED		(1U << 18)
++
+ enum io_uring_op {
+ 	IORING_OP_NOP,
+ 	IORING_OP_READV,
+@@ -298,9 +304,13 @@ enum io_uring_op {
+  * sqe->uring_cmd_flags		top 8bits aren't available for userspace
+  * IORING_URING_CMD_FIXED	use registered buffer; pass this flag
+  *				along with setting sqe->buf_index.
++ * IORING_URING_CMD_MULTISHOT	must be used with buffer select, like other
++ *				multishot commands. Not compatible with
++ *				IORING_URING_CMD_FIXED, for now.
+  */
+ #define IORING_URING_CMD_FIXED	(1U << 0)
+-#define IORING_URING_CMD_MASK	IORING_URING_CMD_FIXED
++#define IORING_URING_CMD_MULTISHOT	(1U << 1)
++#define IORING_URING_CMD_MASK	(IORING_URING_CMD_FIXED | IORING_URING_CMD_MULTISHOT)
+ 
+ 
+ /*
+@@ -394,7 +404,7 @@ enum io_uring_op {
+  *				will be	contiguous from the starting buffer ID.
+  *
+  * IORING_SEND_VECTORIZED	If set, SEND[_ZC] will take a pointer to a io_vec
+- * 				to allow vectorized send operations.
++ *				to allow vectorized send operations.
+  */
+ #define IORING_RECVSEND_POLL_FIRST	(1U << 0)
+ #define IORING_RECV_MULTISHOT		(1U << 1)
+@@ -454,6 +464,7 @@ enum io_uring_msg_ring_flags {
+ #define IORING_NOP_FIXED_FILE		(1U << 2)
+ #define IORING_NOP_FIXED_BUFFER		(1U << 3)
+ #define IORING_NOP_TW			(1U << 4)
++#define IORING_NOP_CQE32		(1U << 5)
+ 
+ /*
+  * IO completion data structure (Completion Queue Entry)
+@@ -487,12 +498,22 @@ struct io_uring_cqe {
+  *			other provided buffer type, all completions with a
+  *			buffer passed back is automatically returned to the
+  *			application.
++ * IORING_CQE_F_SKIP	If set, then the application/liburing must ignore this
++ *			CQE. It's only purpose is to fill a gap in the ring,
++ *			if a large CQE is attempted posted when the ring has
++ *			just a single small CQE worth of space left before
++ *			wrapping.
++ * IORING_CQE_F_32	If set, this is a 32b/big-cqe posting. Use with rings
++ *			setup in a mixed CQE mode, where both 16b and 32b
++ *			CQEs may be posted to the CQ ring.
+  */
+ #define IORING_CQE_F_BUFFER		(1U << 0)
+ #define IORING_CQE_F_MORE		(1U << 1)
+ #define IORING_CQE_F_SOCK_NONEMPTY	(1U << 2)
+ #define IORING_CQE_F_NOTIF		(1U << 3)
+ #define IORING_CQE_F_BUF_MORE		(1U << 4)
++#define IORING_CQE_F_SKIP		(1U << 5)
++#define IORING_CQE_F_32			(1U << 15)
+ 
+ #define IORING_CQE_BUFFER_SHIFT		16
+ 
+@@ -665,6 +686,12 @@ enum io_uring_register_op {
+ 
+ 	IORING_REGISTER_MEM_REGION		= 34,
+ 
++	/* query various aspects of io_uring, see linux/io_uring/query.h */
++	IORING_REGISTER_QUERY			= 35,
++
++	/* return zcrx buffers back into circulation */
++	IORING_REGISTER_ZCRX_REFILL		= 36,
++
+ 	/* this goes last */
+ 	IORING_REGISTER_LAST,
+ 
+@@ -1046,6 +1073,15 @@ struct io_uring_zcrx_ifq_reg {
+ 	__u64	__resv[3];
+ };
+ 
++struct io_uring_zcrx_sync_refill {
++	__u32		zcrx_id;
++	/* the number of entries to return */
++	__u32		nr_entries;
++	/* pointer to an array of struct io_uring_zcrx_rqe */
++	__u64		rqes;
++	__u64		__resv[2];
++};
++
+ #ifdef __cplusplus
+ }
+ #endif
+diff --git a/bundled/linux/include/uapi/linux/kexec.h b/bundled/linux/include/uapi/linux/kexec.h
+index e1335527bd..e26e2110ce 100644
+--- a/bundled/linux/include/uapi/linux/kexec.h
++++ b/bundled/linux/include/uapi/linux/kexec.h
+@@ -22,12 +22,16 @@
+  * KEXEC_FILE_ON_CRASH : Load/unload operation belongs to kdump image.
+  * KEXEC_FILE_NO_INITRAMFS : No initramfs is being loaded. Ignore the initrd
+  *                           fd field.
++ * KEXEC_FILE_FORCE_DTB : Force carrying over the current boot's DTB to the new
++ *                        kernel on x86. This is already the default behavior on
++ *                        some other architectures, like ARM64 and PowerPC.
+  */
+ #define KEXEC_FILE_UNLOAD	0x00000001
+ #define KEXEC_FILE_ON_CRASH	0x00000002
+ #define KEXEC_FILE_NO_INITRAMFS	0x00000004
+ #define KEXEC_FILE_DEBUG	0x00000008
+ #define KEXEC_FILE_NO_CMA	0x00000010
++#define KEXEC_FILE_FORCE_DTB	0x00000020
+ 
+ /* These values match the ELF architecture values.
+  * Unless there is a good reason that should continue to be the case.
+diff --git a/bundled/linux/include/uapi/linux/mptcp.h b/bundled/linux/include/uapi/linux/mptcp.h
+index a0da2632f2..ac193ef707 100644
+--- a/bundled/linux/include/uapi/linux/mptcp.h
++++ b/bundled/linux/include/uapi/linux/mptcp.h
+@@ -29,19 +29,28 @@
+ #define MPTCP_INFO_FLAG_FALLBACK		_BITUL(0)
+ #define MPTCP_INFO_FLAG_REMOTE_KEY_RECEIVED	_BITUL(1)
+ 
+-#define MPTCP_PM_ADDR_FLAG_SIGNAL                      (1 << 0)
+-#define MPTCP_PM_ADDR_FLAG_SUBFLOW                     (1 << 1)
+-#define MPTCP_PM_ADDR_FLAG_BACKUP                      (1 << 2)
+-#define MPTCP_PM_ADDR_FLAG_FULLMESH                    (1 << 3)
+-#define MPTCP_PM_ADDR_FLAG_IMPLICIT                    (1 << 4)
++#define MPTCP_PM_EV_FLAG_DENY_JOIN_ID0		_BITUL(0)
++#define MPTCP_PM_EV_FLAG_SERVER_SIDE		_BITUL(1)
++
++#define MPTCP_PM_ADDR_FLAG_SIGNAL		_BITUL(0)
++#define MPTCP_PM_ADDR_FLAG_SUBFLOW		_BITUL(1)
++#define MPTCP_PM_ADDR_FLAG_BACKUP		_BITUL(2)
++#define MPTCP_PM_ADDR_FLAG_FULLMESH		_BITUL(3)
++#define MPTCP_PM_ADDR_FLAG_IMPLICIT		_BITUL(4)
++#define MPTCP_PM_ADDR_FLAG_LAMINAR		_BITUL(5)
+ 
+ struct mptcp_info {
+ 	__u8	mptcpi_subflows;
++	#define mptcpi_extra_subflows mptcpi_subflows
+ 	__u8	mptcpi_add_addr_signal;
+ 	__u8	mptcpi_add_addr_accepted;
+ 	__u8	mptcpi_subflows_max;
++	#define mptcpi_limit_extra_subflows mptcpi_subflows_max
+ 	__u8	mptcpi_add_addr_signal_max;
++	#define mptcpi_endp_signal_max mptcpi_add_addr_signal_max
+ 	__u8	mptcpi_add_addr_accepted_max;
++	#define mptcpi_limit_add_addr_accepted mptcpi_add_addr_accepted_max
++	/* 16-bit hole that can no longer be filled */
+ 	__u32	mptcpi_flags;
+ 	__u32	mptcpi_token;
+ 	__u64	mptcpi_write_seq;
+@@ -49,14 +58,17 @@ struct mptcp_info {
+ 	__u64	mptcpi_rcv_nxt;
+ 	__u8	mptcpi_local_addr_used;
+ 	__u8	mptcpi_local_addr_max;
++	#define mptcpi_endp_subflow_max mptcpi_local_addr_max
+ 	__u8	mptcpi_csum_enabled;
++	/* 8-bit hole that can no longer be filled */
+ 	__u32	mptcpi_retransmits;
+ 	__u64	mptcpi_bytes_retrans;
+ 	__u64	mptcpi_bytes_sent;
+ 	__u64	mptcpi_bytes_received;
+ 	__u64	mptcpi_bytes_acked;
+ 	__u8	mptcpi_subflows_total;
+-	__u8	reserved[3];
++	__u8	mptcpi_endp_laminar_max;
++	__u8	reserved[2];
+ 	__u32	mptcpi_last_data_sent;
+ 	__u32	mptcpi_last_data_recv;
+ 	__u32	mptcpi_last_ack_recv;
+diff --git a/bundled/linux/include/uapi/linux/mptcp_pm.h b/bundled/linux/include/uapi/linux/mptcp_pm.h
+index 6b5ef7936d..4a4e5d38b3 100644
+--- a/bundled/linux/include/uapi/linux/mptcp_pm.h
++++ b/bundled/linux/include/uapi/linux/mptcp_pm.h
+@@ -16,10 +16,10 @@
+  *   good time to allocate memory and send ADD_ADDR if needed. Depending on the
+  *   traffic-patterns it can take a long time until the MPTCP_EVENT_ESTABLISHED
+  *   is sent. Attributes: token, family, saddr4 | saddr6, daddr4 | daddr6,
+- *   sport, dport, server-side.
++ *   sport, dport, [server-side], [flags].
+  * @MPTCP_EVENT_ESTABLISHED: A MPTCP connection is established (can start new
+  *   subflows). Attributes: token, family, saddr4 | saddr6, daddr4 | daddr6,
+- *   sport, dport, server-side.
++ *   sport, dport, [server-side], [flags].
+  * @MPTCP_EVENT_CLOSED: A MPTCP connection has stopped. Attribute: token.
+  * @MPTCP_EVENT_ANNOUNCED: A new address has been announced by the peer.
+  *   Attributes: token, rem_id, family, daddr4 | daddr6 [, dport].
+diff --git a/bundled/linux/include/uapi/linux/netfilter/nf_tables.h b/bundled/linux/include/uapi/linux/netfilter/nf_tables.h
+index 2beb30be2c..7c0c915f03 100644
+--- a/bundled/linux/include/uapi/linux/netfilter/nf_tables.h
++++ b/bundled/linux/include/uapi/linux/netfilter/nf_tables.h
+@@ -959,6 +959,7 @@ enum nft_exthdr_attributes {
+  * @NFT_META_SDIF: slave device interface index
+  * @NFT_META_SDIFNAME: slave device interface name
+  * @NFT_META_BRI_BROUTE: packet br_netfilter_broute bit
++ * @NFT_META_BRI_IIFHWADDR: packet input bridge interface ethernet address
+  */
+ enum nft_meta_keys {
+ 	NFT_META_LEN,
+@@ -999,6 +1000,7 @@ enum nft_meta_keys {
+ 	NFT_META_SDIFNAME,
+ 	NFT_META_BRI_BROUTE,
+ 	__NFT_META_IIFTYPE,
++	NFT_META_BRI_IIFHWADDR,
+ };
+ 
+ /**
+@@ -1784,10 +1786,12 @@ enum nft_synproxy_attributes {
+  * enum nft_device_attributes - nf_tables device netlink attributes
+  *
+  * @NFTA_DEVICE_NAME: name of this device (NLA_STRING)
++ * @NFTA_DEVICE_PREFIX: device name prefix, a simple wildcard (NLA_STRING)
+  */
+ enum nft_devices_attributes {
+ 	NFTA_DEVICE_UNSPEC,
+ 	NFTA_DEVICE_NAME,
++	NFTA_DEVICE_PREFIX,
+ 	__NFTA_DEVICE_MAX
+ };
+ #define NFTA_DEVICE_MAX		(__NFTA_DEVICE_MAX - 1)
+diff --git a/bundled/linux/include/uapi/linux/nl80211.h b/bundled/linux/include/uapi/linux/nl80211.h
+index d1a14f2892..8134f10e4e 100644
+--- a/bundled/linux/include/uapi/linux/nl80211.h
++++ b/bundled/linux/include/uapi/linux/nl80211.h
+@@ -1085,8 +1085,9 @@
+  *	%NL80211_ATTR_NAN_MASTER_PREF attribute and optional
+  *	%NL80211_ATTR_BANDS attributes.  If %NL80211_ATTR_BANDS is
+  *	omitted or set to 0, it means don't-care and the device will
+- *	decide what to use.  After this command NAN functions can be
+- *	added.
++ *	decide what to use. Additional cluster configuration may be
++ *	optionally provided with %NL80211_ATTR_NAN_CONFIG.
++ *	After this command NAN functions can be added.
+  * @NL80211_CMD_STOP_NAN: Stop the NAN operation, identified by
+  *	its %NL80211_ATTR_WDEV interface.
+  * @NL80211_CMD_ADD_NAN_FUNCTION: Add a NAN function. The function is defined
+@@ -1115,6 +1116,10 @@
+  *	current configuration is not changed.  If it is present but
+  *	set to zero, the configuration is changed to don't-care
+  *	(i.e. the device can decide what to do).
++ *	Additional parameters may be provided with
++ *	%NL80211_ATTR_NAN_CONFIG. User space should provide all previously
++ *	configured nested attributes under %NL80211_ATTR_NAN_CONFIG, even if
++ *	only a subset was changed.
+  * @NL80211_CMD_NAN_MATCH: Notification sent when a match is reported.
+  *	This will contain a %NL80211_ATTR_NAN_MATCH nested attribute and
+  *	%NL80211_ATTR_COOKIE.
+@@ -1344,6 +1349,18 @@
+  *	control EPCS configuration. Used to notify userland on the current state
+  *	of EPCS.
+  *
++ * @NL80211_CMD_NAN_NEXT_DW_NOTIFICATION: This command is used to notify
++ *	user space about the next NAN Discovery Window (DW). User space may use
++ *	it to prepare frames to be sent in the next DW.
++ *	%NL80211_ATTR_WIPHY_FREQ is used to indicate the frequency of the next
++ *	DW. SDF transmission should be requested with %NL80211_CMD_FRAME and
++ *	the device/driver shall take care of the actual transmission timing.
++ *	This notification is only sent to the NAN interface owning socket
++ *	(see %NL80211_ATTR_SOCKET_OWNER flag).
++ * @NL80211_CMD_NAN_CLUSTER_JOINED: This command is used to notify
++ *	user space that the NAN new cluster has been joined. The cluster ID is
++ *	indicated by %NL80211_ATTR_MAC.
++ *
+  * @NL80211_CMD_MAX: highest used command number
+  * @__NL80211_CMD_AFTER_LAST: internal use
+  */
+@@ -1604,6 +1621,9 @@ enum nl80211_commands {
+ 	NL80211_CMD_ASSOC_MLO_RECONF,
+ 	NL80211_CMD_EPCS_CFG,
+ 
++	NL80211_CMD_NAN_NEXT_DW_NOTIFICATION,
++	NL80211_CMD_NAN_CLUSTER_JOINED,
++
+ 	/* add new commands above here */
+ 
+ 	/* used to define NL80211_CMD_MAX below */
+@@ -1943,8 +1963,9 @@ enum nl80211_commands {
+  *	The driver must also specify support for this with the extended
+  *	features NL80211_EXT_FEATURE_BEACON_RATE_LEGACY,
+  *	NL80211_EXT_FEATURE_BEACON_RATE_HT,
+- *	NL80211_EXT_FEATURE_BEACON_RATE_VHT and
+- *	NL80211_EXT_FEATURE_BEACON_RATE_HE.
++ *	NL80211_EXT_FEATURE_BEACON_RATE_VHT,
++ *	NL80211_EXT_FEATURE_BEACON_RATE_HE and
++ *	NL80211_EXT_FEATURE_BEACON_RATE_EHT.
+  *
+  * @NL80211_ATTR_FRAME_MATCH: A binary attribute which typically must contain
+  *	at least one byte, currently used with @NL80211_CMD_REGISTER_FRAME.
+@@ -2283,7 +2304,8 @@ enum nl80211_commands {
+  * @NL80211_ATTR_PEER_AID: Association ID for the peer TDLS station (u16).
+  *	This is similar to @NL80211_ATTR_STA_AID but with a difference of being
+  *	allowed to be used with the first @NL80211_CMD_SET_STATION command to
+- *	update a TDLS peer STA entry.
++ *	update a TDLS peer STA entry. For S1G interfaces, this is limited to
++ *	1600 for the current mac80211 implementation.
+  *
+  * @NL80211_ATTR_COALESCE_RULE: Coalesce rule information.
+  *
+@@ -2928,6 +2950,29 @@ enum nl80211_commands {
+  *	required alongside this attribute. Refer to
+  *	@enum nl80211_s1g_short_beacon_attrs for the attribute definitions.
+  *
++ * @NL80211_ATTR_BSS_PARAM: nested attribute used with %NL80211_CMD_GET_WIPHY
++ *	which indicates which BSS parameters can be modified. The attribute can
++ *	also be used as flag attribute by user-space in %NL80211_CMD_SET_BSS to
++ *	indicate that it wants strict checking on the BSS parameters to be
++ *	modified.
++ *
++ * @NL80211_ATTR_NAN_CONFIG: Nested attribute for
++ *	extended NAN cluster configuration. This is used with
++ *	%NL80211_CMD_START_NAN and %NL80211_CMD_CHANGE_NAN_CONFIG.
++ *	See &enum nl80211_nan_conf_attributes for details.
++ *	This attribute is optional.
++ * @NL80211_ATTR_NAN_NEW_CLUSTER: Flag attribute indicating that a new
++ *	NAN cluster has been created. This is used with
++ *	%NL80211_CMD_NAN_CLUSTER_JOINED
++ * @NL80211_ATTR_NAN_CAPABILITIES: Nested attribute for NAN capabilities.
++ *	This is used with %NL80211_CMD_GET_WIPHY to indicate the NAN
++ *	capabilities supported by the driver. See &enum nl80211_nan_capabilities
++ *	for details.
++ *
++ * @NL80211_ATTR_S1G_PRIMARY_2MHZ: flag attribute indicating that the S1G
++ *	primary channel is 2 MHz wide, and the control channel designates
++ *	the 1 MHz primary subchannel within that 2 MHz primary.
++ *
+  * @NUM_NL80211_ATTR: total number of nl80211_attrs available
+  * @NL80211_ATTR_MAX: highest attribute number currently defined
+  * @__NL80211_ATTR_AFTER_LAST: internal use
+@@ -3489,6 +3534,12 @@ enum nl80211_attrs {
+ 
+ 	NL80211_ATTR_S1G_LONG_BEACON_PERIOD,
+ 	NL80211_ATTR_S1G_SHORT_BEACON,
++	NL80211_ATTR_BSS_PARAM,
++	NL80211_ATTR_NAN_CONFIG,
++	NL80211_ATTR_NAN_NEW_CLUSTER,
++	NL80211_ATTR_NAN_CAPABILITIES,
++
++	NL80211_ATTR_S1G_PRIMARY_2MHZ,
+ 
+ 	/* add attributes here, update the policy in nl80211.c */
+ 
+@@ -3735,6 +3786,22 @@ enum nl80211_eht_gi {
+ 	NL80211_RATE_INFO_EHT_GI_3_2,
+ };
+ 
++/**
++ * enum nl80211_eht_ltf - EHT long training field
++ * @NL80211_RATE_INFO_EHT_1XLTF: 3.2 usec
++ * @NL80211_RATE_INFO_EHT_2XLTF: 6.4 usec
++ * @NL80211_RATE_INFO_EHT_4XLTF: 12.8 usec
++ * @NL80211_RATE_INFO_EHT_6XLTF: 19.2 usec
++ * @NL80211_RATE_INFO_EHT_8XLTF: 25.6 usec
++ */
++enum nl80211_eht_ltf {
++	NL80211_RATE_INFO_EHT_1XLTF,
++	NL80211_RATE_INFO_EHT_2XLTF,
++	NL80211_RATE_INFO_EHT_4XLTF,
++	NL80211_RATE_INFO_EHT_6XLTF,
++	NL80211_RATE_INFO_EHT_8XLTF,
++};
++
+ /**
+  * enum nl80211_eht_ru_alloc - EHT RU allocation values
+  * @NL80211_RATE_INFO_EHT_RU_ALLOC_26: 26-tone RU allocation
+@@ -4371,6 +4438,12 @@ enum nl80211_wmm_rule {
+  *	very low power (VLP) AP, despite being NO_IR.
+  * @NL80211_FREQUENCY_ATTR_ALLOW_20MHZ_ACTIVITY: This channel can be active in
+  *	20 MHz bandwidth, despite being NO_IR.
++ * @NL80211_FREQUENCY_ATTR_NO_4MHZ: 4 MHz operation is not allowed on this
++ *	channel in current regulatory domain.
++ * @NL80211_FREQUENCY_ATTR_NO_8MHZ: 8 MHz operation is not allowed on this
++ *	channel in current regulatory domain.
++ * @NL80211_FREQUENCY_ATTR_NO_16MHZ: 16 MHz operation is not allowed on this
++ *	channel in current regulatory domain.
+  * @NL80211_FREQUENCY_ATTR_MAX: highest frequency attribute number
+  *	currently defined
+  * @__NL80211_FREQUENCY_ATTR_AFTER_LAST: internal use
+@@ -4416,6 +4489,9 @@ enum nl80211_frequency_attr {
+ 	NL80211_FREQUENCY_ATTR_CAN_MONITOR,
+ 	NL80211_FREQUENCY_ATTR_ALLOW_6GHZ_VLP_AP,
+ 	NL80211_FREQUENCY_ATTR_ALLOW_20MHZ_ACTIVITY,
++	NL80211_FREQUENCY_ATTR_NO_4MHZ,
++	NL80211_FREQUENCY_ATTR_NO_8MHZ,
++	NL80211_FREQUENCY_ATTR_NO_16MHZ,
+ 
+ 	/* keep last */
+ 	__NL80211_FREQUENCY_ATTR_AFTER_LAST,
+@@ -5481,6 +5557,10 @@ enum nl80211_key_attributes {
+  *	see &struct nl80211_txrate_he
+  * @NL80211_TXRATE_HE_GI: configure HE GI, 0.8us, 1.6us and 3.2us.
+  * @NL80211_TXRATE_HE_LTF: configure HE LTF, 1XLTF, 2XLTF and 4XLTF.
++ * @NL80211_TXRATE_EHT: EHT rates allowed for TX rate selection,
++ *	see &struct nl80211_txrate_eht
++ * @NL80211_TXRATE_EHT_GI: configure EHT GI, (u8, see &enum nl80211_eht_gi)
++ * @NL80211_TXRATE_EHT_LTF: configure EHT LTF, (u8, see &enum nl80211_eht_ltf)
+  * @__NL80211_TXRATE_AFTER_LAST: internal
+  * @NL80211_TXRATE_MAX: highest TX rate attribute
+  */
+@@ -5493,6 +5573,9 @@ enum nl80211_tx_rate_attributes {
+ 	NL80211_TXRATE_HE,
+ 	NL80211_TXRATE_HE_GI,
+ 	NL80211_TXRATE_HE_LTF,
++	NL80211_TXRATE_EHT,
++	NL80211_TXRATE_EHT_GI,
++	NL80211_TXRATE_EHT_LTF,
+ 
+ 	/* keep last */
+ 	__NL80211_TXRATE_AFTER_LAST,
+@@ -5525,6 +5608,15 @@ enum nl80211_txrate_gi {
+ 	NL80211_TXRATE_FORCE_LGI,
+ };
+ 
++#define NL80211_EHT_NSS_MAX             16
++/**
++ * struct nl80211_txrate_eht - EHT MCS/NSS txrate bitmap
++ * @mcs: MCS bitmap table for each NSS (array index 0 for 1 stream, etc.)
++ */
++struct nl80211_txrate_eht {
++	__u16 mcs[NL80211_EHT_NSS_MAX];
++};
++
+ /**
+  * enum nl80211_band - Frequency band
+  * @NL80211_BAND_2GHZ: 2.4 GHz ISM band
+@@ -6649,6 +6741,9 @@ enum nl80211_feature_flags {
+  *	(signaling and payload protected) A-MSDUs and this shall be advertised
+  *	in the RSNXE.
+  *
++ * @NL80211_EXT_FEATURE_BEACON_RATE_EHT: Driver supports beacon rate
++ *	configuration (AP/mesh) with EHT rates.
++ *
+  * @NUM_NL80211_EXT_FEATURES: number of extended features.
+  * @MAX_NL80211_EXT_FEATURES: highest extended feature index.
+  */
+@@ -6724,6 +6819,7 @@ enum nl80211_ext_feature_index {
+ 	NL80211_EXT_FEATURE_OWE_OFFLOAD_AP,
+ 	NL80211_EXT_FEATURE_DFS_CONCURRENT,
+ 	NL80211_EXT_FEATURE_SPP_AMSDU_SUPPORT,
++	NL80211_EXT_FEATURE_BEACON_RATE_EHT,
+ 
+ 	/* add new features before the definition below */
+ 	NUM_NL80211_EXT_FEATURES,
+@@ -7278,6 +7374,105 @@ enum nl80211_nan_match_attributes {
+ 	NL80211_NAN_MATCH_ATTR_MAX = NUM_NL80211_NAN_MATCH_ATTR - 1
+ };
+ 
++/**
++ * enum nl80211_nan_band_conf_attributes - NAN band configuration attributes
++ * @__NL80211_NAN_BAND_CONF_INVALID: Invalid.
++ * @NL80211_NAN_BAND_CONF_BAND: Band for which the configuration is
++ *	being set. The value is according to &enum nl80211_band (u8).
++ * @NL80211_NAN_BAND_CONF_FREQ: Discovery frequency. This attribute shall not
++ *	be present on 2.4 GHZ band. On 5 GHz band its presence is optional.
++ *	The allowed values are 5220 (channel 44) or 5745 (channel 149).
++ *	If not present, channel 149 is used if allowed, otherwise channel 44
++ *	will be selected. The value is in MHz (u16).
++ * @NL80211_NAN_BAND_CONF_RSSI_CLOSE: RSSI close threshold used for NAN state
++ *	transition algorithm as described in chapters 3.3.6 and 3.3.7 "NAN
++ *	Device Role and State Transition" of Wi-Fi Aware (TM) Specification
++ *	v4.0. If not specified, default device value is used. The value should
++ *	be greater than -60 dBm (s8).
++ * @NL80211_NAN_BAND_CONF_RSSI_MIDDLE: RSSI middle threshold used for NAN state
++ *	transition algorithm as described in chapters 3.3.6 and 3.3.7 "NAN
++ *	Device Role and State Transition" of Wi-Fi Aware (TM) Specification
++ *	v4.0. If not present, default device value is used. The value should be
++ *	greater than -75 dBm and less than %NL80211_NAN_BAND_CONF_RSSI_CLOSE
++ *	(s8).
++ * @NL80211_NAN_BAND_CONF_WAKE_DW: Committed DW information (values 0-5).
++ *	Value 0 means that the device will not wake up during the
++ *	discovery window. Values 1-5 mean that the device will wake up
++ *	during each 2^(n - 1) discovery window, where n is the value of
++ *	this attribute. Setting this attribute to 0 is not allowed on
++ *	2.4 GHz band (u8). This is an optional parameter (default is 1).
++ * @NL80211_NAN_BAND_CONF_DISABLE_SCAN: Optional flag attribute to disable
++ *	scanning (for cluster merge) on the band. If set, the device will not
++ *	scan on this band anymore. Disabling scanning on 2.4 GHz band is not
++ *	allowed.
++ * @NUM_NL80211_NAN_BAND_CONF_ATTR: Internal.
++ * @NL80211_NAN_BAND_CONF_ATTR_MAX: Highest NAN band configuration attribute.
++ *
++ * These attributes are used to configure NAN band-specific parameters. Note,
++ * that both RSSI attributes should be configured (or both left unset).
++ */
++enum nl80211_nan_band_conf_attributes {
++	__NL80211_NAN_BAND_CONF_INVALID,
++	NL80211_NAN_BAND_CONF_BAND,
++	NL80211_NAN_BAND_CONF_FREQ,
++	NL80211_NAN_BAND_CONF_RSSI_CLOSE,
++	NL80211_NAN_BAND_CONF_RSSI_MIDDLE,
++	NL80211_NAN_BAND_CONF_WAKE_DW,
++	NL80211_NAN_BAND_CONF_DISABLE_SCAN,
++
++	/* keep last */
++	NUM_NL80211_NAN_BAND_CONF_ATTR,
++	NL80211_NAN_BAND_CONF_ATTR_MAX = NUM_NL80211_NAN_BAND_CONF_ATTR - 1,
++};
++
++/**
++ * enum nl80211_nan_conf_attributes - NAN configuration attributes
++ * @__NL80211_NAN_CONF_INVALID: Invalid attribute, used for validation.
++ * @NL80211_NAN_CONF_CLUSTER_ID: ID for the NAN cluster. This is a MAC
++ *	address that can take values from 50-6F-9A-01-00-00 to
++ *	50-6F-9A-01-FF-FF. This attribute is optional. If not present,
++ *	a random Cluster ID will be chosen.
++ * @NL80211_NAN_CONF_EXTRA_ATTRS: Additional NAN attributes to be
++ *	published in the beacons. This is an optional byte array.
++ * @NL80211_NAN_CONF_VENDOR_ELEMS: Vendor-specific elements that will
++ *	be published in the beacons. This is an optional byte array.
++ * @NL80211_NAN_CONF_BAND_CONFIGS: This is a nested array attribute,
++ *	containing multiple entries for each supported band. Each band
++ *	configuration consists of &enum nl80211_nan_band_conf_attributes.
++ * @NL80211_NAN_CONF_SCAN_PERIOD: Scan period in seconds. If not configured,
++ *	device default is used. Zero value will disable scanning.
++ *	This is u16 (optional).
++ * @NL80211_NAN_CONF_SCAN_DWELL_TIME: Scan dwell time in TUs per channel.
++ *	Only non-zero values are valid. If not configured the device default
++ *	value is used. This is u16 (optional)
++ * @NL80211_NAN_CONF_DISCOVERY_BEACON_INTERVAL: Discovery beacon interval
++ *	in TUs. Valid range is 50-200 TUs. If not configured the device default
++ *	value is used. This is u8 (optional)
++ * @NL80211_NAN_CONF_NOTIFY_DW: If set, the driver will notify userspace about
++ *	the upcoming discovery window with
++ *	%NL80211_CMD_NAN_NEXT_DW_NOTIFICATION.
++ *	This is a flag attribute.
++ * @NUM_NL80211_NAN_CONF_ATTR: Internal.
++ * @NL80211_NAN_CONF_ATTR_MAX: Highest NAN configuration attribute.
++ *
++ * These attributes are used to configure NAN-specific parameters.
++ */
++enum nl80211_nan_conf_attributes {
++	__NL80211_NAN_CONF_INVALID,
++	NL80211_NAN_CONF_CLUSTER_ID,
++	NL80211_NAN_CONF_EXTRA_ATTRS,
++	NL80211_NAN_CONF_VENDOR_ELEMS,
++	NL80211_NAN_CONF_BAND_CONFIGS,
++	NL80211_NAN_CONF_SCAN_PERIOD,
++	NL80211_NAN_CONF_SCAN_DWELL_TIME,
++	NL80211_NAN_CONF_DISCOVERY_BEACON_INTERVAL,
++	NL80211_NAN_CONF_NOTIFY_DW,
++
++	/* keep last */
++	NUM_NL80211_NAN_CONF_ATTR,
++	NL80211_NAN_CONF_ATTR_MAX = NUM_NL80211_NAN_CONF_ATTR - 1,
++};
++
+ /**
+  * enum nl80211_external_auth_action - Action to perform with external
+  *     authentication request. Used by NL80211_ATTR_EXTERNAL_AUTH_ACTION.
+@@ -8187,4 +8382,54 @@ enum nl80211_s1g_short_beacon_attrs {
+ 		__NL80211_S1G_SHORT_BEACON_ATTR_LAST - 1
+ };
+ 
++/**
++ * enum nl80211_nan_capabilities - NAN (Neighbor Aware Networking)
++ *	capabilities.
++ *
++ * @__NL80211_NAN_CAPABILITIES_INVALID: Invalid.
++ * @NL80211_NAN_CAPA_CONFIGURABLE_SYNC: Flag attribute indicating that
++ *	the device supports configurable synchronization. If set, the device
++ *	should be able to handle %NL80211_ATTR_NAN_CONFIG
++ *	attribute in the %NL80211_CMD_START_NAN (and change) command.
++ * @NL80211_NAN_CAPA_USERSPACE_DE: Flag attribute indicating that
++ *	NAN Discovery Engine (DE) is not offloaded and the driver assumes
++ *	user space DE implementation. When set, %NL80211_CMD_ADD_NAN_FUNCTION,
++ *	%NL80211_CMD_DEL_NAN_FUNCTION and %NL80211_CMD_NAN_MATCH commands
++ *	should not be used. In addition, the device/driver should support
++ *	sending discovery window (DW) notifications using
++ *	%NL80211_CMD_NAN_NEXT_DW_NOTIFICATION and handling transmission and
++ *	reception of NAN SDF frames on NAN device interface during DW windows.
++ *	(%NL80211_CMD_FRAME is used to transmit SDFs)
++ * @NL80211_NAN_CAPA_OP_MODE: u8 attribute indicating the supported operation
++ *	modes as defined in Wi-Fi Aware (TM) specification Table 81 (Operation
++ *	Mode field format).
++ * @NL80211_NAN_CAPA_NUM_ANTENNAS: u8 attribute indicating the number of
++ *	TX and RX antennas supported by the device. Lower nibble indicates
++ *	the number of TX antennas and upper nibble indicates the number of RX
++ *	antennas. Value 0 indicates the information is not available.
++ *	See table 79 of Wi-Fi Aware (TM) specification (Number of
++ *	Antennas field).
++ * @NL80211_NAN_CAPA_MAX_CHANNEL_SWITCH_TIME: u16 attribute indicating the
++ *	maximum time in microseconds that the device requires to switch
++ *	channels.
++ * @NL80211_NAN_CAPA_CAPABILITIES: u8 attribute containing the
++ *	capabilities of the device as defined in Wi-Fi Aware (TM)
++ *	specification Table 79 (Capabilities field).
++ * @__NL80211_NAN_CAPABILITIES_LAST: Internal
++ * @NL80211_NAN_CAPABILITIES_MAX: Highest NAN capability attribute.
++ */
++enum nl80211_nan_capabilities {
++	__NL80211_NAN_CAPABILITIES_INVALID,
++
++	NL80211_NAN_CAPA_CONFIGURABLE_SYNC,
++	NL80211_NAN_CAPA_USERSPACE_DE,
++	NL80211_NAN_CAPA_OP_MODE,
++	NL80211_NAN_CAPA_NUM_ANTENNAS,
++	NL80211_NAN_CAPA_MAX_CHANNEL_SWITCH_TIME,
++	NL80211_NAN_CAPA_CAPABILITIES,
++	/* keep last */
++	__NL80211_NAN_CAPABILITIES_LAST,
++	NL80211_NAN_CAPABILITIES_MAX = __NL80211_NAN_CAPABILITIES_LAST - 1,
++};
++
+ #endif /* __LINUX_NL80211_H */
+diff --git a/bundled/linux/include/uapi/linux/nsfs.h b/bundled/linux/include/uapi/linux/nsfs.h
+index 97d8d80d13..878e8a6920 100644
+--- a/bundled/linux/include/uapi/linux/nsfs.h
++++ b/bundled/linux/include/uapi/linux/nsfs.h
+@@ -16,8 +16,6 @@
+ #define NS_GET_NSTYPE		_IO(NSIO, 0x3)
+ /* Get owner UID (in the caller's user namespace) for a user namespace */
+ #define NS_GET_OWNER_UID	_IO(NSIO, 0x4)
+-/* Get the id for a mount namespace */
+-#define NS_GET_MNTNS_ID		_IOR(NSIO, 0x5, __u64)
+ /* Translate pid from target pid namespace into the caller's pid namespace. */
+ #define NS_GET_PID_FROM_PIDNS	_IOR(NSIO, 0x6, int)
+ /* Return thread-group leader id of pid in the callers pid namespace. */
+@@ -42,6 +40,10 @@ struct mnt_ns_info {
+ /* Get previous namespace. */
+ #define NS_MNT_GET_PREV		_IOR(NSIO, 12, struct mnt_ns_info)
+ 
++/* Retrieve namespace identifiers. */
++#define NS_GET_MNTNS_ID		_IOR(NSIO, 5,  __u64)
++#define NS_GET_ID		_IOR(NSIO, 13, __u64)
++
+ enum init_ns_ino {
+ 	IPC_NS_INIT_INO		= 0xEFFFFFFFU,
+ 	UTS_NS_INIT_INO		= 0xEFFFFFFEU,
+@@ -51,6 +53,16 @@ enum init_ns_ino {
+ 	TIME_NS_INIT_INO	= 0xEFFFFFFAU,
+ 	NET_NS_INIT_INO		= 0xEFFFFFF9U,
+ 	MNT_NS_INIT_INO		= 0xEFFFFFF8U,
++	MNT_NS_ANON_INO		= 0xEFFFFFF7U,
++};
++
++struct nsfs_file_handle {
++	__u64 ns_id;
++	__u32 ns_type;
++	__u32 ns_inum;
+ };
+ 
++#define NSFS_FILE_HANDLE_SIZE_VER0 16 /* sizeof first published struct */
++#define NSFS_FILE_HANDLE_SIZE_LATEST sizeof(struct nsfs_file_handle) /* sizeof latest published struct */
++
+ #endif /* __LINUX_NSFS_H */
+diff --git a/bundled/linux/include/uapi/linux/prctl.h b/bundled/linux/include/uapi/linux/prctl.h
+index ed3aed264a..51c4e8c82b 100644
+--- a/bundled/linux/include/uapi/linux/prctl.h
++++ b/bundled/linux/include/uapi/linux/prctl.h
+@@ -177,7 +177,17 @@ struct prctl_mm_map {
+ 
+ #define PR_GET_TID_ADDRESS	40
+ 
++/*
++ * Flags for PR_SET_THP_DISABLE are only applicable when disabling. Bit 0
++ * is reserved, so PR_GET_THP_DISABLE can return "1 | flags", to effectively
++ * return "1" when no flags were specified for PR_SET_THP_DISABLE.
++ */
+ #define PR_SET_THP_DISABLE	41
++/*
++ * Don't disable THPs when explicitly advised (e.g., MADV_HUGEPAGE /
++ * VM_HUGEPAGE, MADV_COLLAPSE).
++ */
++# define PR_THP_DISABLE_EXCEPT_ADVISED	(1 << 1)
+ #define PR_GET_THP_DISABLE	42
+ 
+ /*
+diff --git a/bundled/linux/include/uapi/linux/ptp_clock.h b/bundled/linux/include/uapi/linux/ptp_clock.h
+index 18eefa6d93..46d45f9024 100644
+--- a/bundled/linux/include/uapi/linux/ptp_clock.h
++++ b/bundled/linux/include/uapi/linux/ptp_clock.h
+@@ -37,6 +37,9 @@
+ 
+ /*
+  * flag fields valid for the new PTP_EXTTS_REQUEST2 ioctl.
++ *
++ * Note: PTP_STRICT_FLAGS is always enabled by the kernel for
++ * PTP_EXTTS_REQUEST2 regardless of whether it is set by userspace.
+  */
+ #define PTP_EXTTS_VALID_FLAGS	(PTP_ENABLE_FEATURE |	\
+ 				 PTP_RISING_EDGE |	\
+@@ -245,6 +248,10 @@ struct ptp_pin_desc {
+ 	_IOWR(PTP_CLK_MAGIC, 18, struct ptp_sys_offset_extended)
+ #define PTP_MASK_CLEAR_ALL  _IO(PTP_CLK_MAGIC, 19)
+ #define PTP_MASK_EN_SINGLE  _IOW(PTP_CLK_MAGIC, 20, unsigned int)
++#define PTP_SYS_OFFSET_PRECISE_CYCLES \
++	_IOWR(PTP_CLK_MAGIC, 21, struct ptp_sys_offset_precise)
++#define PTP_SYS_OFFSET_EXTENDED_CYCLES \
++	_IOWR(PTP_CLK_MAGIC, 22, struct ptp_sys_offset_extended)
+ 
+ struct ptp_extts_event {
+ 	struct ptp_clock_time t; /* Time event occurred. */
+diff --git a/bundled/linux/include/uapi/linux/tcp.h b/bundled/linux/include/uapi/linux/tcp.h
+index 85b51e4c80..e35d416b45 100644
+--- a/bundled/linux/include/uapi/linux/tcp.h
++++ b/bundled/linux/include/uapi/linux/tcp.h
+@@ -316,6 +316,15 @@ struct tcp_info {
+ 					 * in milliseconds, including any
+ 					 * unfinished recovery.
+ 					 */
++	__u32	tcpi_received_ce;    /* # of CE marks received */
++	__u32	tcpi_delivered_e1_bytes;  /* Accurate ECN byte counters */
++	__u32	tcpi_delivered_e0_bytes;
++	__u32	tcpi_delivered_ce_bytes;
++	__u32	tcpi_received_e1_bytes;
++	__u32	tcpi_received_e0_bytes;
++	__u32	tcpi_received_ce_bytes;
++	__u16	tcpi_accecn_fail_mode;
++	__u16	tcpi_accecn_opt_seen;
+ };
+ 
+ /* netlink attributes types for SCM_TIMESTAMPING_OPT_STATS */
+diff --git a/bundled/linux/include/uapi/linux/v4l2-controls.h b/bundled/linux/include/uapi/linux/v4l2-controls.h
+index fc43bb09ef..61d122c2f0 100644
+--- a/bundled/linux/include/uapi/linux/v4l2-controls.h
++++ b/bundled/linux/include/uapi/linux/v4l2-controls.h
+@@ -1189,7 +1189,7 @@ enum v4l2_flash_strobe_source {
+ #define V4L2_CID_JPEG_CLASS_BASE		(V4L2_CTRL_CLASS_JPEG | 0x900)
+ #define V4L2_CID_JPEG_CLASS			(V4L2_CTRL_CLASS_JPEG | 1)
+ 
+-#define	V4L2_CID_JPEG_CHROMA_SUBSAMPLING	(V4L2_CID_JPEG_CLASS_BASE + 1)
++#define V4L2_CID_JPEG_CHROMA_SUBSAMPLING	(V4L2_CID_JPEG_CLASS_BASE + 1)
+ enum v4l2_jpeg_chroma_subsampling {
+ 	V4L2_JPEG_CHROMA_SUBSAMPLING_444	= 0,
+ 	V4L2_JPEG_CHROMA_SUBSAMPLING_422	= 1,
+@@ -1198,15 +1198,15 @@ enum v4l2_jpeg_chroma_subsampling {
+ 	V4L2_JPEG_CHROMA_SUBSAMPLING_410	= 4,
+ 	V4L2_JPEG_CHROMA_SUBSAMPLING_GRAY	= 5,
+ };
+-#define	V4L2_CID_JPEG_RESTART_INTERVAL		(V4L2_CID_JPEG_CLASS_BASE + 2)
+-#define	V4L2_CID_JPEG_COMPRESSION_QUALITY	(V4L2_CID_JPEG_CLASS_BASE + 3)
++#define V4L2_CID_JPEG_RESTART_INTERVAL		(V4L2_CID_JPEG_CLASS_BASE + 2)
++#define V4L2_CID_JPEG_COMPRESSION_QUALITY	(V4L2_CID_JPEG_CLASS_BASE + 3)
+ 
+-#define	V4L2_CID_JPEG_ACTIVE_MARKER		(V4L2_CID_JPEG_CLASS_BASE + 4)
+-#define	V4L2_JPEG_ACTIVE_MARKER_APP0		(1 << 0)
+-#define	V4L2_JPEG_ACTIVE_MARKER_APP1		(1 << 1)
+-#define	V4L2_JPEG_ACTIVE_MARKER_COM		(1 << 16)
+-#define	V4L2_JPEG_ACTIVE_MARKER_DQT		(1 << 17)
+-#define	V4L2_JPEG_ACTIVE_MARKER_DHT		(1 << 18)
++#define V4L2_CID_JPEG_ACTIVE_MARKER		(V4L2_CID_JPEG_CLASS_BASE + 4)
++#define V4L2_JPEG_ACTIVE_MARKER_APP0		(1 << 0)
++#define V4L2_JPEG_ACTIVE_MARKER_APP1		(1 << 1)
++#define V4L2_JPEG_ACTIVE_MARKER_COM		(1 << 16)
++#define V4L2_JPEG_ACTIVE_MARKER_DQT		(1 << 17)
++#define V4L2_JPEG_ACTIVE_MARKER_DHT		(1 << 18)
+ 
+ 
+ /* Image source controls */
+@@ -1239,10 +1239,10 @@ enum v4l2_jpeg_chroma_subsampling {
+ #define V4L2_CID_DV_CLASS_BASE			(V4L2_CTRL_CLASS_DV | 0x900)
+ #define V4L2_CID_DV_CLASS			(V4L2_CTRL_CLASS_DV | 1)
+ 
+-#define	V4L2_CID_DV_TX_HOTPLUG			(V4L2_CID_DV_CLASS_BASE + 1)
+-#define	V4L2_CID_DV_TX_RXSENSE			(V4L2_CID_DV_CLASS_BASE + 2)
+-#define	V4L2_CID_DV_TX_EDID_PRESENT		(V4L2_CID_DV_CLASS_BASE + 3)
+-#define	V4L2_CID_DV_TX_MODE			(V4L2_CID_DV_CLASS_BASE + 4)
++#define V4L2_CID_DV_TX_HOTPLUG			(V4L2_CID_DV_CLASS_BASE + 1)
++#define V4L2_CID_DV_TX_RXSENSE			(V4L2_CID_DV_CLASS_BASE + 2)
++#define V4L2_CID_DV_TX_EDID_PRESENT		(V4L2_CID_DV_CLASS_BASE + 3)
++#define V4L2_CID_DV_TX_MODE			(V4L2_CID_DV_CLASS_BASE + 4)
+ enum v4l2_dv_tx_mode {
+ 	V4L2_DV_TX_MODE_DVI_D	= 0,
+ 	V4L2_DV_TX_MODE_HDMI	= 1,
+@@ -1263,7 +1263,7 @@ enum v4l2_dv_it_content_type {
+ 	V4L2_DV_IT_CONTENT_TYPE_NO_ITC	  = 4,
+ };
+ 
+-#define	V4L2_CID_DV_RX_POWER_PRESENT		(V4L2_CID_DV_CLASS_BASE + 100)
++#define V4L2_CID_DV_RX_POWER_PRESENT		(V4L2_CID_DV_CLASS_BASE + 100)
+ #define V4L2_CID_DV_RX_RGB_RANGE		(V4L2_CID_DV_CLASS_BASE + 101)
+ #define V4L2_CID_DV_RX_IT_CONTENT_TYPE		(V4L2_CID_DV_CLASS_BASE + 102)
+ 
+@@ -1533,15 +1533,6 @@ struct v4l2_ctrl_h264_pred_weights {
+ 	struct v4l2_h264_weight_factors weight_factors[2];
+ };
+ 
+-#define V4L2_H264_SLICE_TYPE_P				0
+-#define V4L2_H264_SLICE_TYPE_B				1
+-#define V4L2_H264_SLICE_TYPE_I				2
+-#define V4L2_H264_SLICE_TYPE_SP				3
+-#define V4L2_H264_SLICE_TYPE_SI				4
+-
+-#define V4L2_H264_SLICE_FLAG_DIRECT_SPATIAL_MV_PRED	0x01
+-#define V4L2_H264_SLICE_FLAG_SP_FOR_SWITCH		0x02
+-
+ #define V4L2_H264_TOP_FIELD_REF				0x1
+ #define V4L2_H264_BOTTOM_FIELD_REF			0x2
+ #define V4L2_H264_FRAME_REF				0x3
+@@ -1562,8 +1553,17 @@ struct v4l2_h264_reference {
+  * Maximum DPB size, as specified by section 'A.3.1 Level limits
+  * common to the Baseline, Main, and Extended profiles'.
+  */
+-#define V4L2_H264_NUM_DPB_ENTRIES 16
+-#define V4L2_H264_REF_LIST_LEN (2 * V4L2_H264_NUM_DPB_ENTRIES)
++#define V4L2_H264_NUM_DPB_ENTRIES		16
++#define V4L2_H264_REF_LIST_LEN			(2 * V4L2_H264_NUM_DPB_ENTRIES)
++
++#define V4L2_H264_SLICE_TYPE_P				0
++#define V4L2_H264_SLICE_TYPE_B				1
++#define V4L2_H264_SLICE_TYPE_I				2
++#define V4L2_H264_SLICE_TYPE_SP				3
++#define V4L2_H264_SLICE_TYPE_SI				4
++
++#define V4L2_H264_SLICE_FLAG_DIRECT_SPATIAL_MV_PRED		0x01
++#define V4L2_H264_SLICE_FLAG_SP_FOR_SWITCH			0x02
+ 
+ #define V4L2_CID_STATELESS_H264_SLICE_PARAMS	(V4L2_CID_CODEC_STATELESS_BASE + 6)
+ /**
+@@ -1703,7 +1703,6 @@ struct v4l2_ctrl_h264_decode_params {
+ 	__u32 flags;
+ };
+ 
+-
+ /* Stateless FWHT control, used by the vicodec driver */
+ 
+ /* Current FWHT version */
+@@ -2545,44 +2544,10 @@ struct v4l2_ctrl_hevc_scaling_matrix {
+ 	__u8	scaling_list_dc_coef_32x32[2];
+ };
+ 
+-#define V4L2_CID_COLORIMETRY_CLASS_BASE	(V4L2_CTRL_CLASS_COLORIMETRY | 0x900)
+-#define V4L2_CID_COLORIMETRY_CLASS	(V4L2_CTRL_CLASS_COLORIMETRY | 1)
+-
+-#define V4L2_CID_COLORIMETRY_HDR10_CLL_INFO	(V4L2_CID_COLORIMETRY_CLASS_BASE + 0)
+-
+-struct v4l2_ctrl_hdr10_cll_info {
+-	__u16 max_content_light_level;
+-	__u16 max_pic_average_light_level;
+-};
+-
+-#define V4L2_CID_COLORIMETRY_HDR10_MASTERING_DISPLAY	(V4L2_CID_COLORIMETRY_CLASS_BASE + 1)
+-
+-#define V4L2_HDR10_MASTERING_PRIMARIES_X_LOW	5
+-#define V4L2_HDR10_MASTERING_PRIMARIES_X_HIGH	37000
+-#define V4L2_HDR10_MASTERING_PRIMARIES_Y_LOW	5
+-#define V4L2_HDR10_MASTERING_PRIMARIES_Y_HIGH	42000
+-#define V4L2_HDR10_MASTERING_WHITE_POINT_X_LOW	5
+-#define V4L2_HDR10_MASTERING_WHITE_POINT_X_HIGH	37000
+-#define V4L2_HDR10_MASTERING_WHITE_POINT_Y_LOW	5
+-#define V4L2_HDR10_MASTERING_WHITE_POINT_Y_HIGH	42000
+-#define V4L2_HDR10_MASTERING_MAX_LUMA_LOW	50000
+-#define V4L2_HDR10_MASTERING_MAX_LUMA_HIGH	100000000
+-#define V4L2_HDR10_MASTERING_MIN_LUMA_LOW	1
+-#define V4L2_HDR10_MASTERING_MIN_LUMA_HIGH	50000
+-
+-struct v4l2_ctrl_hdr10_mastering_display {
+-	__u16 display_primaries_x[3];
+-	__u16 display_primaries_y[3];
+-	__u16 white_point_x;
+-	__u16 white_point_y;
+-	__u32 max_display_mastering_luminance;
+-	__u32 min_display_mastering_luminance;
+-};
+-
+ /* Stateless VP9 controls */
+ 
+ #define V4L2_VP9_LOOP_FILTER_FLAG_DELTA_ENABLED	0x1
+-#define	V4L2_VP9_LOOP_FILTER_FLAG_DELTA_UPDATE	0x2
++#define V4L2_VP9_LOOP_FILTER_FLAG_DELTA_UPDATE	0x2
+ 
+ /**
+  * struct v4l2_vp9_loop_filter - VP9 loop filter parameters
+@@ -3509,4 +3474,38 @@ struct v4l2_ctrl_av1_film_grain {
+ #define V4L2_CID_MPEG_CX2341X_BASE      V4L2_CID_CODEC_CX2341X_BASE
+ #define V4L2_CID_MPEG_MFC51_BASE        V4L2_CID_CODEC_MFC51_BASE
+ 
++#define V4L2_CID_COLORIMETRY_CLASS_BASE	(V4L2_CTRL_CLASS_COLORIMETRY | 0x900)
++#define V4L2_CID_COLORIMETRY_CLASS	(V4L2_CTRL_CLASS_COLORIMETRY | 1)
++
++#define V4L2_CID_COLORIMETRY_HDR10_CLL_INFO	(V4L2_CID_COLORIMETRY_CLASS_BASE + 0)
++
++struct v4l2_ctrl_hdr10_cll_info {
++	__u16 max_content_light_level;
++	__u16 max_pic_average_light_level;
++};
++
++#define V4L2_CID_COLORIMETRY_HDR10_MASTERING_DISPLAY	(V4L2_CID_COLORIMETRY_CLASS_BASE + 1)
++
++#define V4L2_HDR10_MASTERING_PRIMARIES_X_LOW	5
++#define V4L2_HDR10_MASTERING_PRIMARIES_X_HIGH	37000
++#define V4L2_HDR10_MASTERING_PRIMARIES_Y_LOW	5
++#define V4L2_HDR10_MASTERING_PRIMARIES_Y_HIGH	42000
++#define V4L2_HDR10_MASTERING_WHITE_POINT_X_LOW	5
++#define V4L2_HDR10_MASTERING_WHITE_POINT_X_HIGH	37000
++#define V4L2_HDR10_MASTERING_WHITE_POINT_Y_LOW	5
++#define V4L2_HDR10_MASTERING_WHITE_POINT_Y_HIGH	42000
++#define V4L2_HDR10_MASTERING_MAX_LUMA_LOW	50000
++#define V4L2_HDR10_MASTERING_MAX_LUMA_HIGH	100000000
++#define V4L2_HDR10_MASTERING_MIN_LUMA_LOW	1
++#define V4L2_HDR10_MASTERING_MIN_LUMA_HIGH	50000
++
++struct v4l2_ctrl_hdr10_mastering_display {
++	__u16 display_primaries_x[3];
++	__u16 display_primaries_y[3];
++	__u16 white_point_x;
++	__u16 white_point_y;
++	__u32 max_display_mastering_luminance;
++	__u32 min_display_mastering_luminance;
++};
++
+ #endif
+diff --git a/bundled/linux/include/uapi/linux/version.h b/bundled/linux/include/uapi/linux/version.h
+index 4d28c4e7e0..9a8ea9c6c1 100644
+--- a/bundled/linux/include/uapi/linux/version.h
++++ b/bundled/linux/include/uapi/linux/version.h
+@@ -1,5 +1,5 @@
+-#define LINUX_VERSION_CODE 397568
++#define LINUX_VERSION_CODE 397824
+ #define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + ((c) > 255 ? 255 : (c)))
+ #define LINUX_VERSION_MAJOR 6
+-#define LINUX_VERSION_PATCHLEVEL 17
++#define LINUX_VERSION_PATCHLEVEL 18
+ #define LINUX_VERSION_SUBLEVEL 0
+diff --git a/bundled/linux/include/uapi/linux/videodev2.h b/bundled/linux/include/uapi/linux/videodev2.h
+index 6a9ea76007..a1f30e0382 100644
+--- a/bundled/linux/include/uapi/linux/videodev2.h
++++ b/bundled/linux/include/uapi/linux/videodev2.h
+@@ -51,7 +51,7 @@
+  *
+  *	Author: Bill Dirks <bill@thedirks.org>
+  *		Justin Schoeman
+- *              Hans Verkuil <hverkuil@xs4all.nl>
++ *              Hans Verkuil <hverkuil@kernel.org>
+  *		et al.
+  */
+ #ifndef __LINUX_VIDEODEV2_H
+@@ -1542,8 +1542,8 @@ struct v4l2_bt_timings {
+ } __attribute__ ((packed));
+ 
+ /* Interlaced or progressive format */
+-#define	V4L2_DV_PROGRESSIVE	0
+-#define	V4L2_DV_INTERLACED	1
++#define V4L2_DV_PROGRESSIVE	0
++#define V4L2_DV_INTERLACED	1
+ 
+ /* Polarities. If bit is not set, it is assumed to be negative polarity */
+ #define V4L2_DV_VSYNC_POS_POL	0x00000001
+@@ -2715,15 +2715,15 @@ struct v4l2_remove_buffers {
+  * Only implemented if CONFIG_VIDEO_ADV_DEBUG is defined.
+  * You must be root to use these ioctls. Never use these in applications!
+  */
+-#define	VIDIOC_DBG_S_REGISTER	 _IOW('V', 79, struct v4l2_dbg_register)
+-#define	VIDIOC_DBG_G_REGISTER	_IOWR('V', 80, struct v4l2_dbg_register)
++#define VIDIOC_DBG_S_REGISTER	 _IOW('V', 79, struct v4l2_dbg_register)
++#define VIDIOC_DBG_G_REGISTER	_IOWR('V', 80, struct v4l2_dbg_register)
+ 
+ #define VIDIOC_S_HW_FREQ_SEEK	 _IOW('V', 82, struct v4l2_hw_freq_seek)
+-#define	VIDIOC_S_DV_TIMINGS	_IOWR('V', 87, struct v4l2_dv_timings)
+-#define	VIDIOC_G_DV_TIMINGS	_IOWR('V', 88, struct v4l2_dv_timings)
+-#define	VIDIOC_DQEVENT		 _IOR('V', 89, struct v4l2_event)
+-#define	VIDIOC_SUBSCRIBE_EVENT	 _IOW('V', 90, struct v4l2_event_subscription)
+-#define	VIDIOC_UNSUBSCRIBE_EVENT _IOW('V', 91, struct v4l2_event_subscription)
++#define VIDIOC_S_DV_TIMINGS	_IOWR('V', 87, struct v4l2_dv_timings)
++#define VIDIOC_G_DV_TIMINGS	_IOWR('V', 88, struct v4l2_dv_timings)
++#define VIDIOC_DQEVENT		 _IOR('V', 89, struct v4l2_event)
++#define VIDIOC_SUBSCRIBE_EVENT	 _IOW('V', 90, struct v4l2_event_subscription)
++#define VIDIOC_UNSUBSCRIBE_EVENT _IOW('V', 91, struct v4l2_event_subscription)
+ #define VIDIOC_CREATE_BUFS	_IOWR('V', 92, struct v4l2_create_buffers)
+ #define VIDIOC_PREPARE_BUF	_IOWR('V', 93, struct v4l2_buffer)
+ #define VIDIOC_G_SELECTION	_IOWR('V', 94, struct v4l2_selection)
