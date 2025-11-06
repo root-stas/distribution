@@ -30,8 +30,8 @@ case "${DEVICE}" in
   H700)
     [ "${ENABLE_32BIT}" == "true" ] && EMUS_32BIT="box86 desmume-lr gpsp-lr pcsx_rearmed-lr"
     PKG_DEPENDS_TARGET+=" common-shaders glsl-shaders"
-    PKG_EMUS+=" box64 drastic-sa mednafen portmaster scummvmsa yabasanshiro-sa duckstation-sa"
-    LIBRETRO_CORES+=" flycast2021-lr geolith-lr uae4arm"
+    PKG_EMUS+=" rpcs3-sa xemu-sa cemu-sa aethersx2-sa azahar-sa box64 dolphin-sa drastic-sa mednafen portmaster scummvmsa yabasanshiro-sa duckstation-sa"
+    LIBRETRO_CORES+=" parallel-n64-lr ppsspp-lr beetle-psx-lr beetle-saturn-lr bsnes-lr bsnes-hd-lr dolphin-lr flycast2021-lr geolith-lr uae4arm"
     PKG_RETROARCH+=" retropie-shaders"
     ;;
   RK3326)
