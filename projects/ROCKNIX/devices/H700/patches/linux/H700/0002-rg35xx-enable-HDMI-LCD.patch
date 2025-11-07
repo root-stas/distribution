@@ -2153,7 +2153,7 @@ diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h616.dtsi b/arch/arm64/boot/dt
 index 20bc1f76489a..a4bf07d217fa 100644
 --- a/arch/arm64/boot/dts/allwinner/sun50i-h616.dtsi
 +++ b/arch/arm64/boot/dts/allwinner/sun50i-h616.dtsi
-@@ -1154,6 +1154,12 @@ tcon_lcd0_in_tcon_top_mixer1: endpoint@1 {
+@@ -1155,6 +1155,12 @@ tcon_lcd0_in_tcon_top_mixer1: endpoint@1 {
  
  				tcon_lcd0_out: port@1 {
  					reg = <1>;
@@ -2366,4 +2366,56 @@ index 6665f211cb4b..b52726d8d09b 100644
  		constant-charge-current-max-microamp = <1024000>;
 -- 
 2.51.0
+
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h313-x96q.dts b/arch/arm64/boot/dts/allwinner/sun50i-h313-x96q.dts
+index eae56908b9b4..c0704d308e40 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-h313-x96q.dts
++++ b/arch/arm64/boot/dts/allwinner/sun50i-h313-x96q.dts
+@@ -25,6 +25,17 @@
+ 		stdout-path = "serial0:115200n8";
+ 	};
+ 
++	connector {
++		compatible = "hdmi-connector";
++		type = "a";
++
++		port {
++			hdmi_con_in: endpoint {
++				remote-endpoint = <&hdmi_out_con>;
++			};
++		};
++	};
++
+ 	reg_vcc5v: vcc5v {
+ 		/* board wide 5V supply directly from the DC input */
+ 		compatible = "regulator-fixed";
+@@ -64,6 +75,10 @@
+ 	cpu-supply = <&reg_dcdca>;
+ };
+ 
++&de {
++	status = "okay";
++};
++
+ &ehci0 {
+ 	status = "okay";
+ };
+@@ -79,6 +94,17 @@
+ 	status = "okay";
+ };
+ 
++&hdmi {
++	hvcc-supply = <&reg_aldo1>;
++	status = "okay";
++};
++
++&hdmi_out {
++	hdmi_out_con: endpoint {
++		remote-endpoint = <&hdmi_con_in>;
++	};
++};
++
+ &ir {
+ 	status = "okay";
+ };
 
