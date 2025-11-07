@@ -28,7 +28,7 @@ LIBRETRO_CORES="81-lr a5200-lr arduous-lr atari800-lr beetle-gba-lr beetle-lynx-
 ### Emulators or cores for specific devices
 case "${DEVICE}" in
   H700)
-    [ "${ENABLE_32BIT}" == "true" ] && EMUS_32BIT="box86 desmume-lr gpsp-lr pcsx_rearmed-lr"
+    [ "${ENABLE_32BIT}" == "true" ] && EMUS_32BIT="box86 desmume-lr daedalusx64-sa gpsp-lr pcsx_rearmed-lr"
     PKG_DEPENDS_TARGET+=" common-shaders glsl-shaders"
     PKG_EMUS+=" rpcs3-sa xemu-sa cemu-sa aethersx2-sa azahar-sa box64 dolphin-sa drastic-sa mednafen portmaster scummvmsa yabasanshiro-sa duckstation-sa"
     LIBRETRO_CORES+=" ppsspp-lr beetle-psx-lr beetle-saturn-lr bsnes-lr bsnes-hd-lr dolphin-lr flycast2021-lr geolith-lr uae4arm"
@@ -754,7 +754,7 @@ makeinstall_target() {
   add_emu_core n64 retroarch parallel_n64 false
   add_emu_core n64 mupen64plus mupen64plus-sa false
   case ${DEVICE} in
-    SDM845|SM8250|SM8550)
+    SDM845|SM8250|SM8550|700)
       add_emu_core n64 daedalusx64 daedalusx64-sa false
       install_script "Start DaedalusX64.sh"
       ;;
@@ -933,7 +933,6 @@ makeinstall_target() {
   add_emu_core psp retroarch ppsspp false
   add_es_system psp
   install_script "Start PPSSPP.sh"
-  install_script "Start PPSSPP VK.sh"
 
   ### Sony Playstation Portable Minis
   add_emu_core pspminis ppsspp ppsspp-sa true
