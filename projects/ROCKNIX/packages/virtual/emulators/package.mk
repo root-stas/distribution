@@ -30,7 +30,7 @@ case "${DEVICE}" in
   H700)
     [ "${ENABLE_32BIT}" == "true" ] && EMUS_32BIT="box86 desmume-lr daedalusx64-sa gpsp-lr pcsx_rearmed-lr"
     PKG_DEPENDS_TARGET+=" common-shaders glsl-shaders"
-    PKG_EMUS+=" box64 dolphin-sa drastic-sa mednafen portmaster scummvmsa yabasanshiro-sa duckstation-sa"
+    PKG_EMUS+=" aethersx2-sa box64 dolphin-sa drastic-sa mednafen portmaster scummvmsa yabasanshiro-sa duckstation-sa"
     LIBRETRO_CORES+=" ppsspp-lr beetle-psx-lr beetle-saturn-lr bsnes-lr bsnes-hd-lr dolphin-lr flycast2021-lr geolith-lr uae4arm"
     PKG_RETROARCH+=" retropie-shaders"
     ;;
@@ -912,7 +912,7 @@ makeinstall_target() {
 
   ### Sony Playstation 2
   case ${DEVICE} in
-    RK3399|RK3588|SDM845|SM8250|SM8550|S922X)
+    RK3399|RK3588|SDM845|SM8250|SM8550|S922X|H700)
       add_emu_core ps2 aethersx2 aethersx2-sa true
       add_es_system ps2
       install_script "Start AetherSX2.sh"
