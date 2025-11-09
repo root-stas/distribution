@@ -7,7 +7,7 @@ GET_HANDLER_SUPPORT="git"
 PKG_GIT_CLONE_BRANCH="master"
 PKG_LICENSE="MIT"
 PKG_SITE="https://github.com/zeux/volk"
-PKG_URL="${PKG_VERSION}.git"
+PKG_URL="${PKG_SITE}.git"
 PKG_DEPENDS_TARGET="toolchain vulkan-headers"
 PKG_LONGDESC="Meta loader for Vulkan API"
 
