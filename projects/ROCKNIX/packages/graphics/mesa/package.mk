@@ -12,7 +12,7 @@ PKG_DEPENDS_TARGET="toolchain expat libdrm Mako:host pyyaml:host"
 PKG_LONGDESC="Mesa is a 3-D graphics library with an API."
 PKG_TOOLCHAIN="meson"
 PKG_PATCH_DIRS+=" ${DEVICE}"
-PKG_VERSION="25.2.7"
+PKG_VERSION="25.3.0"
 PKG_URL="https://gitlab.freedesktop.org/mesa/mesa/-/archive/mesa-${PKG_VERSION}/mesa-mesa-${PKG_VERSION}.tar.gz"
 
 if listcontains "${GRAPHIC_DRIVERS}" "panfrost"; then
@@ -36,7 +36,6 @@ PKG_MESON_OPTS_TARGET=" ${MESA_LIBS_PATH_OPTS} \
                        -Dgallium-drivers=${GALLIUM_DRIVERS// /,} \
                        -Dgallium-extra-hud=false \
                        -Dshader-cache=enabled \
-                       -Dshared-glapi=enabled \
                        -Dopengl=true \
                        -Dgbm=enabled \
                        -Degl=enabled \
@@ -77,13 +76,6 @@ else
   PKG_MESON_OPTS_TARGET+=" -Dllvm=disabled"
 fi
 
-if [ "${VDPAU_SUPPORT}" = "yes" -a "${DISPLAYSERVER}" = "x11" ]; then
-  PKG_DEPENDS_TARGET+=" libvdpau"
-  PKG_MESON_OPTS_TARGET+=" -Dgallium-vdpau=enabled"
-else
-  PKG_MESON_OPTS_TARGET+=" -Dgallium-vdpau=disabled"
-fi
-
 if [ "${VAAPI_SUPPORT}" = "yes" ] && listcontains "${GRAPHIC_DRIVERS}" "(r600|radeonsi)"; then
   PKG_DEPENDS_TARGET+=" libva"
   PKG_MESON_OPTS_TARGET+=" -Dgallium-va=enabled \
@@ -100,7 +92,8 @@ fi
 
 if [ "${VULKAN_SUPPORT}" = "yes" ]; then
   PKG_DEPENDS_TARGET+=" ${VULKAN} vulkan-tools"
-  PKG_MESON_OPTS_TARGET+=" -Dvulkan-drivers=${VULKAN_DRIVERS_MESA// /,}"
+  PKG_MESON_OPTS_TARGET+=" -Dvulkan-drivers=${VULKAN_DRIVERS_MESA// /,} \
+                           -Dvulkan-layers=device-select,overlay"
 else
   PKG_MESON_OPTS_TARGET+=" -Dvulkan-drivers="
 fi
