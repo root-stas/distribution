@@ -13,7 +13,8 @@ PKG_LONGDESC="Mesa is a 3-D graphics library with an API."
 PKG_TOOLCHAIN="meson"
 PKG_PATCH_DIRS+=" ${DEVICE}"
 PKG_VERSION="25.3.0"
-PKG_URL="https://gitlab.freedesktop.org/mesa/mesa/-/archive/mesa-${PKG_VERSION}/mesa-mesa-${PKG_VERSION}.tar.gz"
+# PKG_URL="https://gitlab.freedesktop.org/mesa/mesa/-/archive/mesa-${PKG_VERSION}/mesa-mesa-${PKG_VERSION}.tar.gz"
+PKG_URL="https://gitlab.freedesktop.org/mesa/mesa/-/archive/main/mesa-main.tar.gz"
 
 if listcontains "${GRAPHIC_DRIVERS}" "panfrost"; then
   PKG_DEPENDS_TARGET+=" mesa:host"
@@ -24,7 +25,7 @@ get_graphicdrivers
 pre_configure_host() {
 # Host only gets built for panfrost.
 PKG_MESON_OPTS_HOST+=" ${MESA_LIBS_PATH_OPTS}  \
-                       -Dgallium-drivers=${GALLIUM_DRIVERS// /,} \
+                       -Dgallium-drivers=${GALLIUM_DRIVERS// /,},zink \
                        -Dvulkan-drivers=${VULKAN_DRIVERS_MESA// /,} \
                        -Dmesa-clc=enabled \
                        -Dinstall-mesa-clc=true \
@@ -33,7 +34,7 @@ PKG_MESON_OPTS_HOST+=" ${MESA_LIBS_PATH_OPTS}  \
 }
 
 PKG_MESON_OPTS_TARGET=" ${MESA_LIBS_PATH_OPTS} \
-                       -Dgallium-drivers=${GALLIUM_DRIVERS// /,} \
+                       -Dgallium-drivers=${GALLIUM_DRIVERS// /,},zink \
                        -Dgallium-extra-hud=false \
                        -Dshader-cache=enabled \
                        -Dopengl=true \
@@ -93,6 +94,7 @@ fi
 if [ "${VULKAN_SUPPORT}" = "yes" ]; then
   PKG_DEPENDS_TARGET+=" ${VULKAN} vulkan-tools"
   PKG_MESON_OPTS_TARGET+=" -Dvulkan-drivers=${VULKAN_DRIVERS_MESA// /,} \
+                           -Dtools=drm-shim,nir,panfrost \
                            -Dvulkan-layers=device-select,overlay"
 else
   PKG_MESON_OPTS_TARGET+=" -Dvulkan-drivers="
