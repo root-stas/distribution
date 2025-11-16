@@ -1,0 +1,14 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-2.0
+# Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
+
+cat <<EOF >/storage/.config/profile.d/040-mesa
+export MESA_VK_IGNORE_CONFORMANCE_WARNING=1
+export MESA_SHADER_CACHE_DISABLE=true
+export MESA_GL_VERSION_OVERRIDE=4.5
+export MESA_GLES_VERSION_OVERRIDE=3.2 
+export MESA_GLSL_VERSION_OVERRIDE=450
+export PAN_MESA_DEBUG=gofaster,gl4.5,forcepack,crc
+export PANVK_DEBUG=no_known_warn,sync,copy_gfx,cs,force_blackhole,wsi_afbc
+EOF
+

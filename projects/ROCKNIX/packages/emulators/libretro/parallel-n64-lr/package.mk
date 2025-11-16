@@ -19,16 +19,11 @@ elif [ "${OPENGLES_SUPPORT}" = yes ]; then
   PKG_MAKE_OPTS_TARGET+=" GLES=1 GL_LIB=\"-lGLESv2\""
 fi
 
-if [ "${VULKAN_SUPPORT}" = "yes" ] && [ ! ${DEVICE} = "SM8250" ] && [ ! ${DEVICE} = "SM8550" ]; then
-  PKG_DEPENDS_TARGET+=" ${VULKAN}"
-  PKG_MAKE_OPTS_TARGET+=" HAVE_PARALLEL=1"
-fi
-
 pre_configure_target() {
   if [ "${ARCH}" = "aarch64" ]; then
     # This is only needed for armv8.2-a targets where we don't use this flag
     # as it prohibits the use of LSE-instructions, this is a package bug most likely
-    export CFLAGS="${CFLAGS} -mno-outline-atomics"
+    export CFLAGS="${CFLAGS} -mno-outline-atomics -std=gnu17"
     export CXXFLAGS="${CXXFLAGS} -mno-outline-atomics"
     PKG_MAKE_OPTS_TARGET+=" platform=${DEVICE}"
   fi

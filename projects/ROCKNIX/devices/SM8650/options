@@ -21,7 +21,7 @@
     KERNEL_MAKE_EXTRACMD=" $(get_kernel_make_extracmd)"
 
   # Kernel cmdline
-    EXTRA_CMDLINE="rootwait quiet video=efifb:off console=tty0 clk_ignore_unused pd_ignore_unused"
+    EXTRA_CMDLINE="rootwait quiet video=efifb:off console=tty0"
 
   # Bootloader to use (syslinux / u-boot)
     BOOTLOADER="arm-efi"
@@ -56,7 +56,7 @@
     FIRMWARE=""
 
   # Additional packages to install
-    ADDITIONAL_PACKAGES="u-boot"
+    ADDITIONAL_PACKAGES="u-boot rocknix-abl"
 
   # Debug tty path
     DEBUG_TTY="/dev/ttyMSM0"

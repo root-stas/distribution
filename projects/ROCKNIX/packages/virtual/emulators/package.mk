@@ -31,8 +31,8 @@ case "${DEVICE}" in
   H700)
     [ "${ENABLE_32BIT}" == "true" ] && EMUS_32BIT="box86 desmume-lr gpsp-lr pcsx_rearmed-lr"
     PKG_DEPENDS_TARGET+=" common-shaders glsl-shaders"
-    PKG_EMUS+=" box64 drastic-sa mednafen portmaster scummvmsa yabasanshiro-sa duckstation-sa"
-    LIBRETRO_CORES+=" flycast2021-lr geolith-lr uae4arm"
+    PKG_EMUS+=" aethersx2-sa box64 dolphin-sa drastic-sa mednafen portmaster scummvmsa yabasanshiro-sa duckstation-sa"
+    LIBRETRO_CORES+=" beetle-saturn-lr bsnes-lr bsnes-hd-lr dolphin-lr flycast2021-lr geolith-lr uae4arm"
     PKG_RETROARCH+=" retropie-shaders"
     ;;
   RK3326)
@@ -561,7 +561,7 @@ makeinstall_target() {
       install_script "Start Dolphin.sh"
       add_es_system gamecube
       ;;
-    RK3566|RK3588|S922X)
+    RK3566|RK3588|S922X|H700)
       add_emu_core gamecube dolphin dolphin-sa-gc true
       add_emu_core gamecube retroarch dolphin false
       add_es_system gamecube
@@ -576,7 +576,7 @@ makeinstall_target() {
       add_emu_core wii retroarch dolphin false
       add_es_system wii
       ;;
-    RK3566|RK3588|S922X)
+    RK3566|RK3588|S922X|H700)
       add_emu_core wii dolphin dolphin-sa-wii true
       add_emu_core wii retroarch dolphin false
       add_es_system wii
@@ -933,7 +933,7 @@ makeinstall_target() {
 
   ### Sony Playstation 2
   case ${DEVICE} in
-    RK3399|RK3588|SDM845|SM8250|SM8550|SM8650|S922X)
+    RK3399|RK3588|SDM845|SM8250|SM8550|SM8650|S922X|H700)
       add_emu_core ps2 aethersx2 aethersx2-sa true
       add_es_system ps2
       install_script "Start AetherSX2.sh"
@@ -1067,7 +1067,7 @@ makeinstall_target() {
       add_emu_core saturn retroarch kronos false
       add_emu_core saturn mednafen ss false
       ;;
-    S922X)
+    S922X|H700)
       add_emu_core saturn retroarch beetle_saturn false
       ;;
   esac
@@ -1129,7 +1129,7 @@ makeinstall_target() {
   add_emu_core snes retroarch bsnes_mercury_balanced false
   add_emu_core snes retroarch bsnes_mercury_performance false
   case ${DEVICE} in
-    RK3399|RK3588|SDM845|SM8250|SM8550|SM8650|S922X)
+    RK3399|RK3588|SDM845|SM8250|SM8550|SM8650|S922X|H700)
       add_emu_core snes retroarch bsnes false
       add_emu_core snes retroarch bsnes_hd_beta false
       ;;
