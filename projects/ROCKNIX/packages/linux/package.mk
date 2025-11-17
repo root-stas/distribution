@@ -30,7 +30,7 @@ case ${DEVICE} in
     PKG_PATCH_DIRS="${LINUX} ${DEVICE} default"
   ;;
   H700)
-    PKG_VERSION="6.18-rc5"
+    PKG_VERSION="6.18-rc6"
     PKG_URL="https://git.kernel.org/torvalds/t/linux-${PKG_VERSION}.tar.gz"
   ;;
   *)
