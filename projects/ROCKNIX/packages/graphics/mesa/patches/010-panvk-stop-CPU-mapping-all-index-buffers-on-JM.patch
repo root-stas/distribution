@@ -1,0 +1,178 @@
+From c11f47481a48113588a4f942d960a8d17190cd55 Mon Sep 17 00:00:00 2001
+From: Olivia Lee <olivia.lee@collabora.com>
+Date: Fri, 8 Aug 2025 21:00:47 -0700
+Subject: [PATCH] panvk: stop CPU mapping all index buffers on JM
+
+This can be removed now that we do compute shader minmax. Fixes failed
+mmap errors on PPSSPP and some other vulkan applications:
+
+MESA: error: mmap(..., size=4194304, prot=2, flags=0x1) failed: Invalid argument
+
+Fixes: e25064c026a ("panvk: Use indirect path for indexed draw on JM")
+Signed-off-by: Olivia Lee <olivia.lee@collabora.com>
+Reviewed-by: Mary Guillemard <mary.guillemard@collabora.com>
+Part-of: <https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/36695>
+---
+ src/panfrost/vulkan/panvk_buffer.c | 35 +-----------------------------
+ 1 file changed, 1 insertion(+), 34 deletions(-)
+
+diff --git a/src/panfrost/vulkan/panvk_buffer.c b/src/panfrost/vulkan/panvk_buffer.c
+index abbaf18e37670..ebbc014ab4ec2 100644
+--- a/src/panfrost/vulkan/panvk_buffer.c
++++ b/src/panfrost/vulkan/panvk_buffer.c
+@@ -54,12 +54,6 @@ VKAPI_ATTR VkResult VKAPI_CALL
+ panvk_BindBufferMemory2(VkDevice _device, uint32_t bindInfoCount,
+                         const VkBindBufferMemoryInfo *pBindInfos)
+ {
+-   VK_FROM_HANDLE(panvk_device, device, _device);
+-   const struct panvk_physical_device *phys_dev =
+-      to_panvk_physical_device(device->vk.physical);
+-   const unsigned arch = pan_arch(phys_dev->kmod.props.gpu_id);
+-   VkResult result = VK_SUCCESS;
+-
+    for (uint32_t i = 0; i < bindInfoCount; i++) {
+       VK_FROM_HANDLE(panvk_device_memory, mem, pBindInfos[i].memory);
+       VK_FROM_HANDLE(panvk_buffer, buffer, pBindInfos[i].buffer);
+@@ -73,35 +67,8 @@ panvk_BindBufferMemory2(VkDevice _device, uint32_t bindInfoCount,
+       assert(buffer->vk.device_address == 0);
+ 
+       buffer->vk.device_address = mem->addr.dev + pBindInfos[i].memoryOffset;
+-
+-      /* FIXME: Only host map for index buffers so we can do the min/max
+-       * index retrieval on the CPU. This is all broken anyway and the
+-       * min/max search should be done with a compute shader that also
+-       * patches the job descriptor accordingly (basically an indirect draw).
+-       *
+-       * Make sure this goes away as soon as we fixed indirect draws.
+-       */
+-      if (arch < 9 && (buffer->vk.usage & VK_BUFFER_USAGE_INDEX_BUFFER_BIT)) {
+-         VkDeviceSize offset = pBindInfos[i].memoryOffset;
+-         VkDeviceSize pgsize = getpagesize();
+-         off_t map_start = offset & ~(pgsize - 1);
+-         off_t map_end = offset + buffer->vk.size;
+-         void *map_addr =
+-            pan_kmod_bo_mmap(mem->bo, map_start, map_end - map_start,
+-                             PROT_WRITE, MAP_SHARED, NULL);
+-
+-         if (map_addr == MAP_FAILED) {
+-            result = panvk_errorf(device, VK_ERROR_OUT_OF_HOST_MEMORY,
+-                                  "Failed to CPU map index buffer");
+-            if (bind_status)
+-               *bind_status->pResult = result;
+-            continue;
+-         }
+-
+-         buffer->host_ptr = map_addr + (offset & pgsize);
+-      }
+    }
+-   return result;
++   return VK_SUCCESS;
+ }
+ 
+ VKAPI_ATTR VkResult VKAPI_CALL
+-- 
+GitLab
+
+From 125de6cd638212913504d0a1ced96ffe9eacbedd Mon Sep 17 00:00:00 2001
+From: Boris Brezillon <boris.brezillon@collabora.com>
+Date: Fri, 22 Aug 2025 14:04:57 +0200
+Subject: [PATCH] panvk: Remove leftovers from CPU-side min/max index
+ calculation
+
+Commit c11f47481a48 ("panvk: stop CPU mapping all index buffers on JM")
+stopped mapping the buffer objects on v9-, but it forgot to remove
+panvk_buffer::host_ptr and panvk_cmd_graphics_state::host_addr.
+
+Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+Reviewed-by: Olivia Lee <olivia.lee@collabora.com>
+Part-of: <https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/36934>
+---
+ src/panfrost/vulkan/panvk_buffer.c      | 11 -----------
+ src/panfrost/vulkan/panvk_buffer.h      |  9 ---------
+ src/panfrost/vulkan/panvk_cmd_draw.h    |  3 ---
+ src/panfrost/vulkan/panvk_vX_cmd_draw.c |  7 -------
+ 4 files changed, 30 deletions(-)
+
+diff --git a/src/panfrost/vulkan/panvk_buffer.c b/src/panfrost/vulkan/panvk_buffer.c
+index ebbc014ab4ec2..14779c72be804 100644
+--- a/src/panfrost/vulkan/panvk_buffer.c
++++ b/src/panfrost/vulkan/panvk_buffer.c
+@@ -103,16 +103,5 @@ panvk_DestroyBuffer(VkDevice _device, VkBuffer _buffer,
+    if (!buffer)
+       return;
+ 
+-   if (buffer->host_ptr) {
+-      VkDeviceSize pgsize = getpagesize();
+-      uintptr_t map_start = (uintptr_t)buffer->host_ptr & ~(pgsize - 1);
+-      uintptr_t map_end =
+-         ALIGN_POT((uintptr_t)buffer->host_ptr + buffer->vk.size, pgsize);
+-      ASSERTED int ret = os_munmap((void *)map_start, map_end - map_start);
+-
+-      assert(!ret);
+-      buffer->host_ptr = NULL;
+-   }
+-
+    vk_buffer_destroy(&device->vk, pAllocator, &buffer->vk);
+ }
+diff --git a/src/panfrost/vulkan/panvk_buffer.h b/src/panfrost/vulkan/panvk_buffer.h
+index 1d3096731c2ed..5b3b47f176600 100644
+--- a/src/panfrost/vulkan/panvk_buffer.h
++++ b/src/panfrost/vulkan/panvk_buffer.h
+@@ -14,15 +14,6 @@ struct panvk_priv_bo;
+ 
+ struct panvk_buffer {
+    struct vk_buffer vk;
+-
+-   /* FIXME: Only used for index buffers to do the min/max index retrieval on
+-    * the CPU. This is all broken anyway and the min/max search should be done
+-    * with a compute shader that also patches the job descriptor accordingly
+-    * (basically an indirect draw).
+-    *
+-    * Make sure this field goes away as soon as we fixed indirect draws.
+-    */
+-   void *host_ptr;
+ };
+ 
+ VK_DEFINE_NONDISP_HANDLE_CASTS(panvk_buffer, vk.base, VkBuffer,
+diff --git a/src/panfrost/vulkan/panvk_cmd_draw.h b/src/panfrost/vulkan/panvk_cmd_draw.h
+index b1d7c11edfa9e..d9cb097691563 100644
+--- a/src/panfrost/vulkan/panvk_cmd_draw.h
++++ b/src/panfrost/vulkan/panvk_cmd_draw.h
+@@ -170,9 +170,6 @@ struct panvk_cmd_graphics_state {
+    /* Index buffer */
+    struct {
+       uint64_t dev_addr;
+-#if PAN_ARCH < 9
+-      void *host_addr;
+-#endif
+       uint64_t size;
+       uint8_t index_size;
+    } ib;
+diff --git a/src/panfrost/vulkan/panvk_vX_cmd_draw.c b/src/panfrost/vulkan/panvk_vX_cmd_draw.c
+index 735600139ac81..1ec1eabfc68b9 100644
+--- a/src/panfrost/vulkan/panvk_vX_cmd_draw.c
++++ b/src/panfrost/vulkan/panvk_vX_cmd_draw.c
+@@ -903,10 +903,6 @@ panvk_per_arch(CmdBindIndexBuffer2)(VkCommandBuffer commandBuffer,
+       cmdbuf->state.gfx.ib.size = panvk_buffer_range(buf, offset, size);
+       assert(cmdbuf->state.gfx.ib.size <= UINT32_MAX);
+       cmdbuf->state.gfx.ib.dev_addr = panvk_buffer_gpu_ptr(buf, offset);
+-#if PAN_ARCH < 9
+-      cmdbuf->state.gfx.ib.host_addr =
+-         buf && buf->host_ptr ? buf->host_ptr + offset : NULL;
+-#endif
+    } else {
+       cmdbuf->state.gfx.ib.size = 0;
+       /* In case of NullDescriptors, we need to set a non-NULL address and rely
+@@ -914,9 +910,6 @@ panvk_per_arch(CmdBindIndexBuffer2)(VkCommandBuffer commandBuffer,
+        * that this only works for v10+, as v9 does not have a way to specify the
+        * index buffer size. */
+       cmdbuf->state.gfx.ib.dev_addr = PAN_ARCH >= 10 ? 0x1000 : 0;
+-#if PAN_ARCH < 9
+-      cmdbuf->state.gfx.ib.host_addr = 0;
+-#endif
+    }
+    cmdbuf->state.gfx.ib.index_size = vk_index_type_to_bytes(indexType);
+ 
+-- 
+GitLab
+
