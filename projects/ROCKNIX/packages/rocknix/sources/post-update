@@ -95,6 +95,11 @@ then
   cd /storage/.config/ppsspp/assets
   cp /usr/config/ppsspp/assets/NotoSansJP-Regular.ttf .
   ln -s NotoSansJP-Regular.ttf Roboto-Condensed.ttf
+  ln -s NotoSansJP-Regular.ttf Roboto_Condensed-Regular.ttf
+  ln -s NotoSansJP-Regular.ttf Roboto_Condensed-Light.ttf
+  ln -s NotoSansJP-Regular.ttf Roboto_Condensed-Bold.ttf
+  ln -s NotoSansJP-Regular.ttf Roboto_Condensed-Italic.ttf
+  ln -s NotoSansJP-Regular.ttf Inconsolata-Regular.ttf
   cd -
 fi
 
