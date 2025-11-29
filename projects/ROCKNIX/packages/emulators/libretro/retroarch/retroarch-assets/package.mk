@@ -2,10 +2,10 @@
 # Copyright (C) 2024-present ROCKNIX (https://github.com/ROCKNIX)
 
 PKG_NAME="retroarch-assets"
-PKG_VERSION="76cc6cf03507429c5a136cb50d83a14e05430fcd"
+PKG_VERSION="HEAD"
 PKG_LICENSE="GPL"
 PKG_SITE="https://github.com/libretro/retroarch-assets"
-PKG_URL="https://github.com/libretro/retroarch-assets/archive/${PKG_VERSION}.tar.gz"
+PKG_URL="https://github.com/libretro/retroarch-assets.git"
 PKG_DEPENDS_TARGET="make:host"
 PKG_LONGDESC="RetroArch assets. Background and icon themes for the menu drivers."
 PKG_TOOLCHAIN="manual"
