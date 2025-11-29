@@ -3,10 +3,10 @@
 # Copyright (C) 2021-present Team LibreELEC (https://libreelec.tv)
 
 PKG_NAME="vulkan-loader"
-PKG_VERSION="1.4.332"
+PKG_VERSION=""
 PKG_LICENSE="Apache-2.0"
 PKG_SITE="https://github.com/KhronosGroup/Vulkan-Loader"
-PKG_URL="https://github.com/KhronosGroup/Vulkan-Loader/archive/v${PKG_VERSION}.tar.gz"
+PKG_URL="https://github.com/KhronosGroup/Vulkan-Loader.git"
 PKG_DEPENDS_TARGET="toolchain Python3:host vulkan-headers libxcb libX11 libXrandr wayland"
 PKG_LONGDESC="Vulkan Installable Client Driver (ICD) Loader."
 
