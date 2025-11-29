@@ -10,6 +10,56 @@ on:
         required: false
         default: false
         type: boolean
+      rk3326:
+        description: 'RK3326'
+        required: false
+        default: true
+        type: boolean
+      rk3399:
+        description: 'RK3399'
+        required: false
+        default: true
+        type: boolean
+      rk3566:
+        description: 'RK3566'
+        required: false
+        default: true
+        type: boolean
+      rk3588:
+        description: 'RK3588'
+        required: false
+        default: true
+        type: boolean
+      s922x:
+        description: 'S922X'
+        required: false
+        default: true
+        type: boolean
+      h700:
+        description: 'H700'
+        required: false
+        default: true
+        type: boolean
+      sdm845:
+        description: 'SDM845'
+        required: false
+        default: true
+        type: boolean
+      sm8250:
+        description: 'SM8250'
+        required: false
+        default: true
+        type: boolean
+      sm8550:
+        description: 'SM8550'
+        required: false
+        default: true
+        type: boolean
+      sm8650:
+        description: 'SM8650'
+        required: false
+        default: true
+        type: boolean
   workflow_call:
   pull_request:
     types: [ assigned ]
@@ -51,31 +101,42 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - device: RK3326
+          - build_enabled: ${{ inputs.rk3326 || github.event_name == 'schedule' }}
+            device: RK3326
             project: ROCKNIX
-          - device: RK3399
+          - build_enabled: ${{ inputs.rk3399 || github.event_name == 'schedule' }}
+            device: RK3399
             project: ROCKNIX
-          - device: RK3566
+          - build_enabled: ${{ inputs.rk3566 || github.event_name == 'schedule' }}
+            device: RK3566
             project: ROCKNIX
-          - device: RK3588
+          - build_enabled: ${{ inputs.rk3588 || github.event_name == 'schedule' }}
+            device: RK3588
             project: ROCKNIX
-          - device: S922X
+          - build_enabled: ${{ inputs.s922x || github.event_name == 'schedule' }}
+            device: S922X
             project: ROCKNIX
-          - device: H700
+          - build_enabled: ${{ inputs.h700 || github.event_name == 'schedule' }}
+            device: H700
             project: ROCKNIX
-          - device: SDM845
+          - build_enabled: ${{ inputs.sdm845 || github.event_name == 'schedule' }}
+            device: SDM845
             project: ROCKNIX
-          - device: SM8250
+          - build_enabled: ${{ inputs.sm8250 || github.event_name == 'schedule' }}
+            device: SM8250
             project: ROCKNIX
-          - device: SM8550
+          - build_enabled: ${{ inputs.sm8550 || github.event_name == 'schedule' }}
+            device: SM8550
             project: ROCKNIX
-          - device: SM8650
+          - build_enabled: ${{ inputs.sm8650 || github.event_name == 'schedule' }}
+            device: SM8650
             project: ROCKNIX
     uses: ./.github/workflows/build-device.yml
     secrets: inherit
     with:
       PROJECT: ${{ matrix.project }}
       DEVICE: ${{ matrix.device }}
+      BUILD_ENABLED: ${{ matrix.build_enabled }}
       OWNER_LC: ${{ needs.set-envs.outputs.OWNER_LC }}
       NIGHTLY: ${{ needs.set-envs.outputs.NIGHTLY }}
       OFFICIAL: ${{ needs.set-envs.outputs.OFFICIAL }}
