@@ -2,10 +2,10 @@
 # Copyright (C) 2024-present ROCKNIX (https://github.com/ROCKNIX)
 
 PKG_NAME="retroarch-joypads"
-PKG_VERSION="HEAD"
+PKG_VERSION="master"
 PKG_LICENSE="GPL"
 PKG_SITE="https://github.com/libretro/retroarch-joypad-autoconfig"
-PKG_URL="https://github.com/libretro/retroarch-joypad-autoconfig.git"
+PKG_URL="https://github.com/libretro/retroarch-joypad-autoconfig/archive/${PKG_VERSION}.tar.gz"
 PKG_DEPENDS_TARGET=""
 PKG_LONGDESC="RetroArch joypad autoconfigs."
 PKG_TOOLCHAIN="manual"
