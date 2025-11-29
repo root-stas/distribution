@@ -32,14 +32,15 @@ case ${DEVICE} in
   *)
     case ${DEVICE} in
       S922X|SM8550|SM8250|H700|SM8650|RK3566|RK3399)
-        PKG_VERSION="6.17.9"
+        PKG_VERSION=""
+        PKG_URL="git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
       ;;
       *)
         PKG_VERSION="6.12.57"
         PKG_PATCH_DIRS+=" 6.12-LTS"
+        PKG_URL="https://www.kernel.org/pub/linux/kernel/v${PKG_VERSION/.*/}.x/${PKG_NAME}-${PKG_VERSION}.tar.xz"
       ;;
     esac
-    PKG_URL="https://www.kernel.org/pub/linux/kernel/v${PKG_VERSION/.*/}.x/${PKG_NAME}-${PKG_VERSION}.tar.xz"
   ;;
 esac
 
