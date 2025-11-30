@@ -24,7 +24,7 @@ get_graphicdrivers
 pre_configure_host() {
 # Host only gets built for panfrost.
 PKG_MESON_OPTS_HOST+=" ${MESA_LIBS_PATH_OPTS}  \
-                       -Dgallium-drivers=${GALLIUM_DRIVERS// /,},zink,llvmpipe \
+                       -Dgallium-drivers=${GALLIUM_DRIVERS// /,},zink \
                        -Dvulkan-drivers=${VULKAN_DRIVERS_MESA// /,},swrast \
                        -Dmesa-clc=enabled \
                        -Dinstall-mesa-clc=true \
@@ -33,7 +33,7 @@ PKG_MESON_OPTS_HOST+=" ${MESA_LIBS_PATH_OPTS}  \
 }
 
 PKG_MESON_OPTS_TARGET=" ${MESA_LIBS_PATH_OPTS} \
-                       -Dgallium-drivers=${GALLIUM_DRIVERS// /,},zink,llvmpipe \
+                       -Dgallium-drivers=${GALLIUM_DRIVERS// /,},zink \
                        -Dgallium-extra-hud=false \
                        -Dshader-cache=enabled \
                        -Dshared-glapi=enabled \
