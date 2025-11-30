@@ -13,7 +13,7 @@ PKG_TOOLCHAIN="cmake"
 
 unpack() {
   mkdir -p ${PKG_BUILD}
-  tar --strip-components=1 -xf ${SOURCES}/llvm/llvm-${PKG_VERSION}.tar.xz -C ${PKG_BUILD}
+  tar --strip-components=1 -xf ${SOURCES}/llvm/llvm-${PKG_VERSION}.tar.gz -C ${PKG_BUILD}
 }
 
 pre_configure() {
