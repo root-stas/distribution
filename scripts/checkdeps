@@ -79,6 +79,9 @@ dep_map=(
   [xz]=xz-utils
   [zip]=zip
   [zstd]=zstd
+  [python-is-python3]=python-is-python3
+  [automake]=automake
+  [golang-go]=golang-go
 )
 
 # [file]=package
