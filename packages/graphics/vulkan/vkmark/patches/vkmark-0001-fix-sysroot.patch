@@ -1,11 +1,14 @@
 --- a/src/meson.build	2025-01-23 08:33:27.000000000 +0000
 +++ b/src/meson.build	2025-05-02 04:43:30.867280490 +0000
-@@ -1,7 +1,7 @@
+@@ -1,9 +1,9 @@
  prog_python = find_program('python3')
  
+-vulkan_prefix = meson.get_external_property('sys_root', '') + vulkan_dep.get_variable('prefix')
++vulkan_prefix = meson.get_external_property('sys_root', '') + vulkan_dep.get_variable('includedir')
+ 
  vk_xml = join_paths([
--    vulkan_dep.get_pkgconfig_variable('prefix'),
-+    vulkan_dep.get_pkgconfig_variable('includedir'), '..',
+-    vulkan_prefix,
++    vulkan_prefix, '..',
      'share', 'vulkan', 'registry',
      'vk.xml'
      ])
