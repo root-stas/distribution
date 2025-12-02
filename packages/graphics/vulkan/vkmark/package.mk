@@ -3,7 +3,7 @@
 
 PKG_NAME="vkmark"
 # PKG_VERSION="master"
-PKG_VERSION="next"
+PKG_VERSION="e21efd9b44dbaa9d256f335215ae106b69749d04"
 PKG_LICENSE="LGPL-2.1-or-later"
 PKG_SITE="https://github.com/vkmark/vkmark"
 # PKG_URL="https://github.com/vkmark/vkmark/archive/${PKG_VERSION}.tar.gz"
