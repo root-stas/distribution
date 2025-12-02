@@ -5,7 +5,7 @@
 PKG_NAME="flycast-lr"
 PKG_VERSION="master"
 PKG_SITE="https://github.com/flyinghead/flycast"
-PKG_URL="https://github.com/flyinghead/flycast/archive/${PKG_VERSION}.tar.gz"
+PKG_URL="https://github.com/flyinghead/flycast.git"
 PKG_DEPENDS_TARGET="toolchain zlib libzip"
 PKG_LONGDESC="Flycast is a multi-platform Sega Dreamcast, Naomi and Atomiswave emulator"
 PKG_TOOLCHAIN="cmake"
