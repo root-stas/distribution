@@ -25,7 +25,7 @@ pre_configure_host() {
 # Host only gets built for panfrost.
 PKG_MESON_OPTS_HOST+=" ${MESA_LIBS_PATH_OPTS}  \
                        -Dgallium-drivers=${GALLIUM_DRIVERS// /,},zink \
-                       -Dvulkan-drivers=${VULKAN_DRIVERS_MESA// /,},swrast \
+                       -Dvulkan-drivers=${VULKAN_DRIVERS_MESA// /,} \
                        -Dmesa-clc=enabled \
                        -Dinstall-mesa-clc=true \
                        -Dprecomp-compiler=enabled \
@@ -93,7 +93,7 @@ fi
 
 if [ "${VULKAN_SUPPORT}" = "yes" ]; then
   PKG_DEPENDS_TARGET+=" ${VULKAN} vulkan-tools"
-  PKG_MESON_OPTS_TARGET+=" -Dvulkan-drivers=${VULKAN_DRIVERS_MESA// /,},swrast \
+  PKG_MESON_OPTS_TARGET+=" -Dvulkan-drivers=${VULKAN_DRIVERS_MESA// /,} \
                            -Dtools=drm-shim,nir,panfrost \
                            -Dvulkan-layers=device-select,overlay"
 else
