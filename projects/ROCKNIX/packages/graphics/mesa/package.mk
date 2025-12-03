@@ -12,8 +12,8 @@ PKG_DEPENDS_TARGET="toolchain expat libdrm Mako:host pyyaml:host"
 PKG_LONGDESC="Mesa is a 3-D graphics library with an API."
 PKG_TOOLCHAIN="meson"
 PKG_PATCH_DIRS+=" ${DEVICE}"
-PKG_VERSION=""
-PKG_URL="https://gitlab.freedesktop.org/mesa/mesa/-/archive/main/mesa-main.tar.gz"
+PKG_VERSION="main"
+PKG_URL="https://gitlab.freedesktop.org/mesa/mesa.git"
 
 if listcontains "${GRAPHIC_DRIVERS}" "panfrost"; then
   PKG_DEPENDS_TARGET+=" mesa:host"
