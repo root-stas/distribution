@@ -4,10 +4,10 @@
 # Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="mupen64plus-sa-input-sdl"
-PKG_VERSION="3698a2b12b1dc536801649de2705b4a79ffb8a08"
+PKG_VERSION="master"
 PKG_LICENSE="GPLv2"
 PKG_SITE="https://github.com/mupen64plus/mupen64plus-input-sdl"
-PKG_URL="https://github.com/mupen64plus/mupen64plus-input-sdl/archive/${PKG_VERSION}.tar.gz"
+PKG_URL="https://github.com/mupen64plus/mupen64plus-input-sdl.git"
 PKG_DEPENDS_TARGET="toolchain libpng SDL2 SDL2_net zlib freetype nasm:host mupen64plus-sa-core"
 PKG_LONGDESC="mupen64plus-input-sdl"
 PKG_LONGDESC="Mupen64Plus Standalone Input SDL"
