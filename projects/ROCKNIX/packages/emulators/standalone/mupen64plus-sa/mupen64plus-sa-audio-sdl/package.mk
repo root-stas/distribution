@@ -4,10 +4,10 @@
 # Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="mupen64plus-sa-audio-sdl"
-PKG_VERSION="cec70e42b4535ce5bd1be24e7d816c54b3e75673"
+PKG_VERSION="master"
 PKG_LICENSE="GPLv2"
 PKG_SITE="https://github.com/mupen64plus/mupen64plus-audio-sdl"
-PKG_URL="https://github.com/mupen64plus/mupen64plus-audio-sdl/archive/${PKG_VERSION}.tar.gz"
+PKG_URL="https://github.com/mupen64plus/mupen64plus-audio-sdl.git"
 PKG_DEPENDS_TARGET="toolchain libpng SDL2 SDL2_net zlib freetype nasm:host mupen64plus-sa-core"
 PKG_LONGDESC="mupen64plus-audio-sdl"
 PKG_LONGDESC="Mupen64Plus Standalone Audio SDL"
