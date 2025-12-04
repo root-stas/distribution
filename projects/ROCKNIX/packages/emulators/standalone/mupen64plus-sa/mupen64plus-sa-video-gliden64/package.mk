@@ -4,7 +4,7 @@
 # Copyright (C) 2023 JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="mupen64plus-sa-video-gliden64"
-PKG_VERSION="85bdd452d7090f78a0f76d02121fa59ad079b7f6"
+PKG_VERSION="master"
 PKG_LICENSE="GPLv2"
 PKG_SITE="https://github.com/gonetz/GLideN64"
 PKG_URL="${PKG_SITE}.git"
