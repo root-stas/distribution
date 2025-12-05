@@ -36,7 +36,7 @@ case ${DEVICE} in
         PKG_URL="git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
       ;;
       *)
-        PKG_VERSION="6.12.57"
+        PKG_VERSION="6.12.59"
         PKG_PATCH_DIRS+=" 6.12-LTS"
         PKG_URL="https://www.kernel.org/pub/linux/kernel/v${PKG_VERSION/.*/}.x/${PKG_NAME}-${PKG_VERSION}.tar.xz"
       ;;
