@@ -13,7 +13,7 @@ PKG_TOOLCHAIN="cmake"
 
 unpack() {
   mkdir -p ${PKG_BUILD}
-  tar --strip-components=1 -xf ${SOURCES}/llvm/llvm-${PKG_VERSION}.tar.xz -C ${PKG_BUILD}
+  tar --strip-components=1 -xf ${SOURCES}/llvm/llvm-${PKG_VERSION}.tar.gz -C ${PKG_BUILD}
 }
 
 pre_configure() {
@@ -21,7 +21,7 @@ pre_configure() {
 }
 
 pre_configure_host() {
-  LIBCLC_TARGETS_TO_BUILD="spirv64-mesa3d-,spirv32-mesa3d-"
+  LIBCLC_TARGETS_TO_BUILD="spirv-mesa3d-;spirv64-mesa3d-"
 
   mkdir -p "${PKG_BUILD}/.${HOST_NAME}"
   cd ${PKG_BUILD}/.${HOST_NAME}

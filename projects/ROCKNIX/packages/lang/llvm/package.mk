@@ -3,17 +3,16 @@
 # Copyright (C) 2018-present Team LibreELEC (https://libreelec.tv)
 
 PKG_NAME="llvm"
-PKG_VERSION="19.1.7"
-PKG_SHA256="82401fea7b79d0078043f7598b835284d6650a75b93e64b6f761ea7b63097501"
+PKG_VERSION="a832a5222e489298337fbb5876f8dcaf072c5cca"
 PKG_LICENSE="Apache-2.0"
 PKG_SITE="http://llvm.org/"
-PKG_URL="https://github.com/llvm/llvm-project/releases/download/llvmorg-${PKG_VERSION}/llvm-project-${PKG_VERSION/-/}.src.tar.xz"
+PKG_URL="https://github.com/llvm/llvm-project/archive/${PKG_VERSION}.tar.gz"
 PKG_DEPENDS_HOST="toolchain:host"
 PKG_DEPENDS_TARGET="toolchain llvm:host zlib"
 PKG_LONGDESC="Low-Level Virtual Machine (LLVM) is a compiler infrastructure."
 PKG_TOOLCHAIN="cmake"
 
-if listcontains "${GRAPHIC_DRIVERS}" "iris"; then
+if listcontains "${GRAPHIC_DRIVERS}" "iris|panfrost"; then
   PKG_DEPENDS_UNPACK="spirv-headers spirv-llvm-translator"
 fi
 
@@ -48,7 +47,7 @@ PKG_CMAKE_OPTS_COMMON="-DLLVM_INCLUDE_TOOLS=ON \
                        -DCMAKE_SKIP_RPATH=ON"
 
 post_unpack() {
-  if listcontains "${GRAPHIC_DRIVERS}" "iris"; then
+  if listcontains "${GRAPHIC_DRIVERS}" "iris|panfrost"; then
     mkdir -p "${PKG_BUILD}"/llvm/projects/{SPIRV-Headers,SPIRV-LLVM-Translator}
       tar --strip-components=1 \
         -xf "${SOURCES}/spirv-headers/spirv-headers-$(get_pkg_version spirv-headers).tar.gz" \
@@ -101,7 +100,7 @@ pre_configure_host() {
 post_make_host() {
   ninja ${NINJA_OPTS} llvm-config llvm-objcopy llvm-tblgen
 
-  if listcontains "${GRAPHIC_DRIVERS}" "iris"; then
+  if listcontains "${GRAPHIC_DRIVERS}" "iris|panfrost"; then
     ninja ${NINJA_OPTS} llvm-as llvm-link llvm-spirv opt
   fi
 }
@@ -112,7 +111,7 @@ post_makeinstall_host() {
     cp -a bin/llvm-objcopy ${TOOLCHAIN}/bin
     cp -a bin/llvm-tblgen ${TOOLCHAIN}/bin
 
-  if listcontains "${GRAPHIC_DRIVERS}" "iris"; then
+  if listcontains "${GRAPHIC_DRIVERS}" "iris|panfrost"; then
     cp -a bin/{llvm-as,llvm-link,llvm-spirv,opt} "${TOOLCHAIN}/bin"
   fi
 }
