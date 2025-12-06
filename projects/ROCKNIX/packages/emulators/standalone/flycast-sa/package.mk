@@ -3,10 +3,9 @@
 # Copyright (C) 2022-present JELOS (https://github.com/JustEnoughLinuxOS)
 
 PKG_NAME="flycast-sa"
-PKG_VERSION="master"
-PKG_LICENSE="GPLv2"
+PKG_VERSION="30dc883e42ffca3e51342605f9264bbb516b95c2"
 PKG_SITE="https://github.com/flyinghead/flycast"
-PKG_URL="https://github.com/flyinghead/flycast.git"
+PKG_URL="https://github.com/root-stas/flycast.git"
 PKG_DEPENDS_TARGET="toolchain alsa SDL2 libzip zip curl miniupnpc lua54 libao"
 PKG_LONGDESC="Flycast is a multiplatform Sega Dreamcast, Naomi and Atomiswave emulator"
 PKG_TOOLCHAIN="cmake"
