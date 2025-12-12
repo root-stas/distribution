@@ -86,14 +86,14 @@
        .depthClamp = true,
        .depthBiasClamp = true,
 @@ -275,7 +275,7 @@
-       .vertexPipelineStoresAndAtomics =
           (PAN_ARCH >= 13 && instance->enable_vertex_pipeline_stores_atomics) ||
           instance->force_enable_shader_atomics,
--      .fragmentStoresAndAtomics = (PAN_ARCH >= 10) ||
-+      .fragmentStoresAndAtomics = (PAN_ARCH >= 7) ||
-           instance->force_enable_shader_atomics,
+       .fragmentStoresAndAtomics =
+-         (PAN_ARCH >= 10) || instance->force_enable_shader_atomics,
++         (PAN_ARCH >= 7) || instance->force_enable_shader_atomics,
        .shaderTessellationAndGeometryPointSize = false,
        .shaderImageGatherExtended = true,
+       .shaderStorageImageExtendedFormats = true,
 @@ -322,18 +322,18 @@
  
        /* Vulkan 1.2 */
